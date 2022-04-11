@@ -17,7 +17,9 @@ int main(void)
     camera.rotation = 0.f;
     camera.zoom = 1.f;
 
-    TileMap heightmap(mapwidth, std::vector<MapTile>(mapheight, { 0 }));
+    // typedef in tileset.h
+    // https://mathworld.wolfram.com/GridGraph.html
+    TileMap heightmap(mapwidth + 1, std::vector<TileMap::value_type::value_type>(mapheight + 1, { 0 }));
 
     // Main game loop
     while (!WindowShouldClose()) {
@@ -49,17 +51,21 @@ int main(void)
 
                 if (i == selected.x && j == selected.y)
                     DrawCursor(selected.x, selected.y, false);
-                DrawFloor(i, j, heightmap);
+                DrawTile(i, j, heightmap);
                 if (i == selected.x && j == selected.y)
                     DrawCursor(selected.x, selected.y, true);
             }
         };
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            RaiseTerrain(heightmap, selected.x, selected.y);
+            RaiseTerrain(selected.x, selected.y, heightmap);
         } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
             // LowerTerrain(heightmap, selected.x, selected.y);
         };
+
+        if (IsKeyPressed(KEY_M)) {
+            ControlSettings.MountainTool = !ControlSettings.MountainTool;
+        }
 
         DrawCircle(0, 0, 5, RED);
         DrawCircle(tileWidth / 2, tileHeight / 2, 5, BLUE);
@@ -82,6 +88,10 @@ int main(void)
             debug += std::to_string(heightmap[selected.x][selected.y].height);
             DrawText(debug.c_str(), 10, 70, 12, BLACK);
         }
+
+        debug = std::string("Press M to toggle Moutain Tool: ");
+        debug += std::to_string(ControlSettings.MountainTool);
+        DrawText(debug.c_str(), 10, 100, 12, BLACK);
 
         EndDrawing();
     }

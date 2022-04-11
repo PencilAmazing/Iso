@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include <string>
 #include <vector>
+#include <assert.h>
 
 const int screenWidth = 1000;
 const int screenHeight = 900;
@@ -15,22 +16,112 @@ const int tileHeight = 128;
 
 const float cameraSpeed = 30;
 
-
 enum class TileDirection {
-    North = 0,
-    East = 1,
-    South = 2,
-    West = 3
+    North,
+    East,
+    South,
+    West
+};
+
+enum class TileElevation {
+    Flat, // Flat, 
+    CornerSlope, // One corner is raised
+    Slope, // Two adjacent corners are raised
+    SteepSlope, // One corner is raised with a steep bit set
+    Invalid // Just in case
+};
+
+struct TileDescription {
+    TileDirection direction;
+    TileElevation elevation;
 };
 
 struct TileTexture {
     Texture direction[4];
 };
 
-struct MapTile {
-    int height;
-    TileDirection direction;
+/*
+.............*.... top right
+top left *........* bottom right
+.............*.... bottom left
+
+I cannot be bother to rename this now
+*/
+
+enum TileCorner {
+    TOP_RIGHT_CORNER = 1 << 0,
+    BOTTOM_RIGHT_CORNER = 1 << 1,
+    BOTTOM_LEFT_CORNER = 1 << 2,
+    TOP_LEFT_CORNER = 1 << 3,
+    STEEP_CORNER = 1 << 4 // Valid if one corner is raised
 };
+
+struct MapTile {
+    uint8_t corners;
+    int height;
+};
+
+const uint8_t CornerLookupTable[] = {
+    // Flat
+    0,
+    // Corner slope
+    TOP_RIGHT_CORNER,
+    BOTTOM_RIGHT_CORNER,
+    BOTTOM_LEFT_CORNER,
+    TOP_LEFT_CORNER,
+    //  Slopes
+    TOP_RIGHT_CORNER | TOP_LEFT_CORNER,
+    TOP_RIGHT_CORNER | BOTTOM_RIGHT_CORNER,
+    BOTTOM_LEFT_CORNER | BOTTOM_RIGHT_CORNER,
+    TOP_LEFT_CORNER | BOTTOM_LEFT_CORNER,
+    // Steep Slope
+    STEEP_CORNER | TOP_RIGHT_CORNER,
+    STEEP_CORNER | BOTTOM_RIGHT_CORNER,
+    STEEP_CORNER | BOTTOM_LEFT_CORNER,
+    STEEP_CORNER | TOP_LEFT_CORNER,
+    // Anything not in this table is invalid
+};
+
+const TileDirection DirectionLookupTable[] = {
+    // Flat
+    TileDirection::North,
+    // Corner Slope
+    TileDirection::North,
+    TileDirection::West,
+    TileDirection::South,
+    TileDirection::East,
+    // Slopes
+    TileDirection::South,
+    TileDirection::East,
+    TileDirection::North,
+    TileDirection::West,
+    // Steep Slope
+    TileDirection::North,
+    TileDirection::West,
+    TileDirection::South,
+    TileDirection::East
+};
+
+const TileElevation ElevationLookupTable[] = {
+    TileElevation::Flat,
+    TileElevation::CornerSlope,
+    TileElevation::CornerSlope,
+    TileElevation::CornerSlope,
+    TileElevation::CornerSlope,
+    TileElevation::Slope,
+    TileElevation::Slope,
+    TileElevation::Slope,
+    TileElevation::Slope,
+    TileElevation::SteepSlope,
+    TileElevation::SteepSlope,
+    TileElevation::SteepSlope,
+    TileElevation::SteepSlope
+};
+
+inline bool TestCorner(MapTile tile, TileCorner corner)
+{
+    return (tile.corners & corner) == corner;
+}
 
 typedef std::vector<std::vector<MapTile>> TileMap;
 
@@ -86,22 +177,60 @@ void LoadTilesets()
     BlockTile = LoadTileVariations("block");
 }
 
+TileDescription ReadTile(MapTile tile)
+{
+    //MapTile tile = heightmap[i][j];
+    int index = -1;
+    for (int i = 0; i < sizeof(CornerLookupTable); i++) {
+        if (CornerLookupTable[i] == tile.corners) {
+            index = i;
+            break;
+        }
+    }
+
+    TileDescription out;
+    out.direction = TileDirection::North;
+    out.elevation = TileElevation::Invalid;
+    if (index != -1) {
+        out.direction = DirectionLookupTable[index];
+        out.elevation = ElevationLookupTable[index];
+    }
+
+    return out;
+}
+
 // Takes in map coords
-void DrawTile(int i, int j, int tileID = 0)
+void DrawTile(int i, int j, TileMap heightmap)
 {
     Point coords = IsoToCartesian(i, j);
     int x = coords.x;
     int y = coords.y;
+    //assert(x >= 0 && y >= 0);
+    
+    TileDescription tile = ReadTile(heightmap[i][j]);
+    TileTexture texture;
 
-    switch (tileID) {
-    case 1: // Draw Cursor
-        DrawTexture(PoleTile.direction[(int)TileDirection::North], x, y, WHITE);
+    switch (tile.elevation) {
+    case TileElevation::Flat:
+        texture = FloorTile;
         break;
-    case 0:
+    case TileElevation::Slope:
+        texture = SlopeTile;
+        break;
+    case TileElevation::CornerSlope:
+        texture = SlopeCornerOuterTile;
+        break;
+    case TileElevation::SteepSlope:
+        assert(false, "Whoop de fucking do you're missing a texture");
+        break;
+    case TileElevation::Invalid:
     default:
-        DrawTexture(FloorTile.direction[(int)TileDirection::North], x, y, WHITE);
+        assert(false, "Invalid I guess");
         break;
-    }
+    };
+
+    y -= tileHeight * heightmap[i][j].height;
+    DrawTexture(texture.direction[(int)tile.direction], x, y, WHITE);
 }
 
 void DrawCursor(int i, int j, bool drawFront)
@@ -117,19 +246,5 @@ void DrawCursor(int i, int j, bool drawFront)
     } else { // Draw back
         DrawTexture(PoleTile.direction[(int)TileDirection::South], x, y, cursorColor);
         DrawTexture(PoleTile.direction[(int)TileDirection::West], x, y, cursorColor);
-    }
-}
-
-void DrawFloor(int i, int j, TileMap heightmap)
-{
-    Point coords = IsoToCartesian(i, j);
-    // Diamond square algorithm would be easy here
-    MapTile tile = heightmap[i][j];
-    if (tile.height == 0) {
-        DrawTexture(FloorTile.direction[(int)TileDirection::North], coords.x, coords.y, WHITE);
-    } else if (tile.height == 1) {
-        DrawTexture(SlopeTile.direction[(int)tile.direction], coords.x, coords.y, WHITE);
-    } else if (tile.height == 2) {
-        DrawTexture(BlockTile.direction[(int)TileDirection::North], coords.x, coords.y, WHITE);
     }
 }
