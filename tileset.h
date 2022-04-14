@@ -1,7 +1,6 @@
 #pragma once
 
 #include "raylib.h"
-#include <string>
 #include <vector>
 #include <assert.h>
 
@@ -61,7 +60,8 @@ enum TileCorner : uint8_t {
     EAST_CORNER = 1 << 1,
     SOUTH_CORNER = 1 << 2,
     WEST_CORNER = 1 << 3,
-    STEEP_CORNER = 1 << 4 // Valid if one corner is raised
+    STEEP_CORNER = 1 << 4, // Valid if three corners are raised
+    CHANGE_ELEVATION = 1 << 5 // Set when tile changes elevation
 };
 
 const uint8_t ALL_CORNERS = NORTH_CORNER | EAST_CORNER | SOUTH_CORNER | WEST_CORNER;
@@ -196,10 +196,16 @@ const uint8_t tile_element_lower_styles[9][32] = {
     }, // MAP_SELECT_TYPE_EDGE_3
 };
 
-inline bool TestCorner(MapTile tile, TileCorner corner)
+void BinaryToString(uint8_t binary, char* out)
 {
-    return (tile.corners & corner) == corner;
-};
+    for (int i = 0; i < 8; i++) {
+        if (binary & (1 << i))
+            out[7 - i] = '1';
+        else
+            out[7 - i] = '0';
+    }
+    out[8] = '\0';
+}
 
 typedef std::vector<std::vector<MapTile>> TileMap;
 
@@ -207,10 +213,6 @@ struct Point {
     int x;
     int y;
 };
-
-//TileTexture WallTile;
-//TileTexture PoleTile;
-//TileTexture CrateTile;
 
 TileTexture FloorTile;
 TileTexture CornerSlopeTile;
@@ -235,28 +237,6 @@ Point CartesianToIso(float x, float y)
     };
 }
 
-//TileTexture LoadTileVariations(const char* tileName)
-//{
-//    std::string prefix("assets/tileset/");
-//    prefix.append(tileName);
-//    TileTexture out;
-//    out.direction[(int)Tile_North] = LoadTexture((prefix + std::string("_N.png")).c_str());
-//    out.direction[(int)Tile_South] = LoadTexture((prefix + std::string("_S.png")).c_str());
-//    out.direction[(int)Tile_East] = LoadTexture((prefix + std::string("_E.png")).c_str());
-//    out.direction[(int)Tile_West] = LoadTexture((prefix + std::string("_W.png")).c_str());
-//    return out;
-//}
-//void LoadTilesets()
-//{
-//    FloorTile = LoadTileVariations("floor");
-//    WallTile = LoadTileVariations("wall");
-//    PoleTile = LoadTileVariations("pole");
-//    CrateTile = LoadTileVariations("crate");
-//    SlopeCornerOuterTile = LoadTileVariations("sloperCornerOuter");
-//    SlopeTile = LoadTileVariations("slope");
-//    BlockTile = LoadTileVariations("block");
-//}
-
 void LoadTerrainSpritesheet()
 {
     Image tilemap = LoadImage("assets/tiles_grass.png");
@@ -264,26 +244,26 @@ void LoadTerrainSpritesheet()
     // Saddles get special treatement
     TileTexture* textureList[] = { &FloorTile, &CornerSlopeTile, &SlopeTile, &ThreeQuarterSlopeTile, &SteepSlopeTile };
 
-    int yJump = 8 + tileHeight+16;
+    int yJump = 8 + tileHeight + 16;
     float yOffset = 0;
     for (int j = 0; j < 5; j++) {
         for (int i = 0; i < 4; i++) {
-            Rectangle crop = { tileWidth * i, yOffset, tileWidth, tileHeight+16 };
+            Rectangle crop = { tileWidth * i, yOffset, tileWidth, tileHeight + 16 };
             copy = ImageFromImage(tilemap, crop);
             textureList[j]->direction[i] = LoadTextureFromImage(copy);
         }
         yOffset += 48;
     }
 
-    Rectangle crop = { 0, yOffset, tileWidth, tileHeight };
-    copy = ImageFromImage(tilemap, crop);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_North] = LoadTextureFromImage(copy);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_South] = LoadTextureFromImage(copy);
-
-    crop = { tileWidth, yOffset, tileWidth, tileHeight };
+    Rectangle crop = { 0, yOffset, tileWidth, tileHeight+16 };
     copy = ImageFromImage(tilemap, crop);
     SaddleSlopeTile.direction[(int)TileDirection::Tile_East] = LoadTextureFromImage(copy);
     SaddleSlopeTile.direction[(int)TileDirection::Tile_West] = LoadTextureFromImage(copy);
+
+    crop = { tileWidth, yOffset, tileWidth, tileHeight+16 };
+    copy = ImageFromImage(tilemap, crop);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_North] = LoadTextureFromImage(copy);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_South] = LoadTextureFromImage(copy);
 }
 
 TileDescription ReadTile(MapTile tile)
@@ -336,23 +316,19 @@ void DrawTile(int i, int j, TileMap heightmap)
     };
 
     // Tile set i'm using has really weird margins.
-    y -= (tileHeight/4) * heightmap[i][j].height;
+    y -= (tileHeight / 4) * heightmap[i][j].height;
     DrawTexture(texture.direction[(int)tile.direction], x, y, WHITE);
 }
 
-void DrawCursor(int i, int j, bool drawFront)
+void DrawCursor(int i, int j)
 {
     Point coords = IsoToCartesian(i, j);
     int x = coords.x;
     int y = coords.y;
     Color cursorColor = (int)GetFrameTime() % 2 == 0 ? WHITE : RED;
 
-    if (drawFront) {
-        //DrawTexture(PoleTile.direction[(int)Tile_North], x, y, cursorColor);
-        //DrawTexture(PoleTile.direction[(int)Tile_East], x, y, cursorColor);
-
-    } else { // Draw back
-        DrawTexture(PoleTile.direction[(int)Tile_South], x, y, cursorColor);
-        DrawTexture(PoleTile.direction[(int)Tile_West], x, y, cursorColor);
-    }
+    DrawCircle(x + tileWidth, y + tileHeight / 2 + 8, 5, BLUE);
+    DrawCircle(x + tileWidth / 2, y + 8, 5, ORANGE);
+    DrawCircle(x, y + tileHeight / 2 + 8, 5, RED);
+    DrawCircle(x + tileWidth / 2, y + tileHeight + 8, 5, PURPLE);
 }

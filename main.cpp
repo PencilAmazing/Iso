@@ -1,3 +1,5 @@
+#include <string>
+
 #include "raylib.h"
 #include "tileset.h"
 #include "control.h"
@@ -7,7 +9,6 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib [core] example - input mouse wheel");
 
     LoadTerrainSpritesheet();
-    TraceLog(LOG_INFO, GetWorkingDirectory());
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
@@ -49,11 +50,10 @@ int main(void)
             for (int j = 0; j < mapheight; j++) { // y
                 // Weird offsets because of weird tile with weird space above
 
-                if (i == selected.x && j == selected.y)
-                    DrawCursor(selected.x, selected.y, false);
+                //if (i == selected.x && j == selected.y)
+                    //DrawCursor(selected.x, selected.y, false);
                 DrawTile(i, j, heightmap);
-                if (i == selected.x && j == selected.y)
-                    DrawCursor(selected.x, selected.y, true);
+                DrawCursor(selected.x, selected.y);
             }
         };
 
@@ -87,6 +87,16 @@ int main(void)
             debug = std::string("Map height ");
             debug += std::to_string(heightmap[selected.x][selected.y].height);
             DrawText(debug.c_str(), 10, 70, 12, BLACK);
+
+            char bits[9];
+            BinaryToString(heightmap[selected.x][selected.y].corners, bits);
+            DrawText(bits, screenWidth - 100, 30, 16, BLACK);
+            TileDescription desc = ReadTile(heightmap[selected.x][selected.y]);
+            debug = std::string("Tile description ");
+            debug += std::to_string(desc.direction);
+            debug += ' ';
+            debug += std::to_string(desc.elevation);
+            DrawText(debug.c_str(), screenWidth - 200, 60, 12, BLACK);
         }
 
         debug = std::string("Press M to toggle Moutain Tool: ");

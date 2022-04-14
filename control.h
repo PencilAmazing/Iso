@@ -17,20 +17,16 @@ void RaiseMountain(int i, int j, TileMap& heightmap)
 {
     MapTile center = heightmap[i][j];
 
-    heightmap[i][j - 1].corners = tile_element_raise_styles[7][heightmap[i][j - 1].corners];
     heightmap[i][j + 1].corners = tile_element_raise_styles[5][heightmap[i][j + 1].corners];
-    heightmap[i - 1][j].corners = tile_element_raise_styles[8][heightmap[i - 1][j].corners];
     heightmap[i + 1][j].corners = tile_element_raise_styles[6][heightmap[i + 1][j].corners];
+    heightmap[i][j - 1].corners = tile_element_raise_styles[7][heightmap[i][j - 1].corners];
+    heightmap[i - 1][j].corners = tile_element_raise_styles[8][heightmap[i - 1][j].corners];
 
-    //heightmap[i][j - 1].height += 1;
-    //heightmap[i][j + 1].height += 1;
-    //heightmap[i - 1][j].height += 1;
-    //heightmap[i + 1][j].height += 1;
+    heightmap[i - 1][j - 1].corners = tile_element_raise_styles[1][heightmap[i - 1][j - 1].corners];
+    heightmap[i - 1][j + 1].corners = tile_element_raise_styles[2][heightmap[i - 1][j + 1].corners];
+    heightmap[i + 1][j + 1].corners = tile_element_raise_styles[3][heightmap[i + 1][j + 1].corners];
+    heightmap[i + 1][j - 1].corners = tile_element_raise_styles[0][heightmap[i + 1][j - 1].corners];
 
-    //heightmap[i - 1][j - 1].corners |= BOTTOM_LEFT_CORNER;
-    //heightmap[i - 1][j + 1].corners |= TOP_LEFT_CORNER;
-    //heightmap[i + 1][j + 1].corners |= TOP_RIGHT_CORNER;
-    //heightmap[i + 1][j - 1].corners |= BOTTOM_RIGHT_CORNER;
 }
 
 /*
@@ -50,8 +46,8 @@ void RaiseTerrain(int x, int y, TileMap& heightmap)
 
     int selectedHeight = heightmap[x][y].height;
     // Clamp height (for now)
-    if (selectedHeight >= 1) {
-        heightmap[x][y].height = 1;
+    if (selectedHeight >= 3) {
+        heightmap[x][y].height = 3;
         return;
     }
 
@@ -59,8 +55,17 @@ void RaiseTerrain(int x, int y, TileMap& heightmap)
 
     // If terrain is flat, make neighbors slopes
     // Works on flat terrain for now
+    // TODO: Only affect neigboring tiles of similar height
     if (ControlSettings.MountainTool && ReadTile(heightmap[x][y]).elevation == Tile_Flat) {
         RaiseMountain(x, y, heightmap);
     }
-    heightmap[x][y].height += 1;
+
+    for (int i = x - 1; i <= x + 1; i++) {
+        for (int j = y - 1; j <= y + 1; j++) {
+            if (heightmap[i][j].corners & CHANGE_ELEVATION) {
+                heightmap[i][j].height += 1;
+            }
+            heightmap[i][j].corners &= ALL_CORNER_FLAGS;
+        }
+    }
 }
