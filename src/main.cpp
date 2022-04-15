@@ -1,7 +1,7 @@
-#include <string>
-
 #include "raylib.h"
-#include "tileset.h"
+
+#include "debug.h"
+#include "settings.h"
 #include "control.h"
 
 int main(void)
@@ -71,37 +71,7 @@ int main(void)
         DrawCircle(tileWidth / 2, tileHeight / 2, 5, BLUE);
         EndMode2D();
 
-        std::string debug = std::string("Mouse pos at ");
-        debug += std::to_string(mousePos.x);
-        debug += ' ';
-        debug += std::to_string(mousePos.y);
-        DrawText(debug.c_str(), 10, 10, 12, BLACK);
-
-        debug = std::string("Mouse Iso at ");
-        debug += std::to_string(selected.x);
-        debug += ' ';
-        debug += std::to_string(selected.y);
-        DrawText(debug.c_str(), 10, 40, 12, BLACK);
-
-        if (selected.x >= 0 && selected.x < mapwidth && selected.y >= 0 && selected.y < mapheight) {
-            debug = std::string("Map height ");
-            debug += std::to_string(heightmap[selected.x][selected.y].height);
-            DrawText(debug.c_str(), 10, 70, 12, BLACK);
-
-            char bits[9];
-            BinaryToString(heightmap[selected.x][selected.y].corners, bits);
-            DrawText(bits, screenWidth - 100, 30, 16, BLACK);
-            TileDescription desc = ReadTile(heightmap[selected.x][selected.y]);
-            debug = std::string("Tile description ");
-            debug += std::to_string(desc.direction);
-            debug += ' ';
-            debug += std::to_string(desc.elevation);
-            DrawText(debug.c_str(), screenWidth - 200, 60, 12, BLACK);
-        }
-
-        debug = std::string("Press M to toggle Moutain Tool: ");
-        debug += std::to_string(ControlSettings.MountainTool);
-        DrawText(debug.c_str(), 10, 100, 12, BLACK);
+        WriteDebugToScreen(mousePos, selected, heightmap);
 
         EndDrawing();
     }

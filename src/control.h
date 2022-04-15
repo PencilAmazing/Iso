@@ -1,12 +1,6 @@
 #pragma once
 
 #include "tileset.h"
-#include <vector>
-
-struct {
-    bool MountainTool = true; // Should smooth neighbors
-    int Size = 0; // 0 means tile/corner level selection
-} ControlSettings;
 
 // 0 == floor
 // 1 == slope

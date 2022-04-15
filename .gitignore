@@ -27,11 +27,13 @@ x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
+.cmake/
+CMakeFiles/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -361,3 +363,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+*.lib
+*.pc
+*.cmake
+/bin/VSInheritEnvironments.txt
+*.exe
+/bin/CMakeCache.txt
+/bin/build.ninja
+/bin/.ninja_log
+/bin/.ninja_deps
+/discard

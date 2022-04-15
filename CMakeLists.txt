@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(lib/raylib)
 
 # Add source to this project's executable.
-add_executable (Iso "main.cpp" "tileset.h" "control.h")
+add_executable (Iso "src/main.cpp" "src/tileset.h" "src/control.h" "src/debug.h" "src/settings.h" "src/tileset.cpp")
 target_link_libraries(Iso raylib)
 
 set_target_properties(Iso PROPERTIES DEBUG_POSTFIX "_d")
