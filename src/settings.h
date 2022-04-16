@@ -9,8 +9,8 @@ namespace {
     const int screenWidth = 1000;
     const int screenHeight = 900;
 
-    const int mapwidth = 10;
-    const int mapheight = 10;
+    const int mapwidth = 25;
+    const int mapheight = 25;
 
     const int tileWidth = 64;
     const int tileHeight = 32;

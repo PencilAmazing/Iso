@@ -4,6 +4,15 @@
 #include "settings.h"
 #include "control.h"
 
+/*
+* TODO:
+* Get a terrain spritesheet with actual thickness
+* Design a nice UI
+* implement actual gameplay
+* Maybe terrain generation?
+* Separate smoothing functions into edge and corner cases
+*/
+
 int main(void)
 {
     InitWindow(screenWidth, screenHeight, "raylib [core] example - input mouse wheel");
@@ -20,6 +29,7 @@ int main(void)
 
     // typedef in tileset.h
     // https://mathworld.wolfram.com/GridGraph.html
+    // TODO make this on the heap
     TileMap heightmap(mapwidth + 1, std::vector<TileMap::value_type::value_type>(mapheight + 1, { 0 }));
 
     // Main game loop
@@ -58,7 +68,8 @@ int main(void)
         };
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            RaiseTerrain(selected.x, selected.y, heightmap);
+            int size = 1;
+            RaiseTerrain(selected.x, selected.y, size, heightmap);
         } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
             // LowerTerrain(heightmap, selected.x, selected.y);
         };

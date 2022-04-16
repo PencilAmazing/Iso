@@ -55,6 +55,18 @@ enum TileCorner : uint8_t {
     CHANGE_ELEVATION = 1 << 5 // Set when tile changes elevation
 };
 
+enum SelectionStyle {
+    EastCorner,
+    NorthCorner,
+    WestCorner,
+    SouthCorner,
+    FullTile,
+    SouthWestEdge,
+    SouthEastEdge,
+    NorthEastEdge,
+    NorthWestEdge
+};
+
 const uint8_t ALL_CORNERS = NORTH_CORNER | EAST_CORNER | SOUTH_CORNER | WEST_CORNER;
 const uint8_t ALL_CORNER_FLAGS = ALL_CORNERS | STEEP_CORNER;
 
@@ -201,6 +213,11 @@ namespace {
     TileTexture ThreeQuarterSlopeTile;
     TileTexture SteepSlopeTile;
     TileTexture SaddleSlopeTile;
+};
+
+inline bool IsPointWithinMap(int i, int j)
+{
+    return i >= 0 && j >= 0 && i < mapwidth&& j < mapheight;
 };
 
 Point IsoToCartesian(int i, int j);

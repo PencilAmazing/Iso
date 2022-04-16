@@ -96,7 +96,8 @@ void DrawTile(int i, int j, TileMap heightmap)
     };
 
     // Tile set i'm using has really weird margins.
-    y -= (tileHeight / 4) * heightmap[i][j].height;
+    int height = (int)(heightmap[i][j].height / 2);
+    y -= (tileHeight / 4) * height;
     DrawTexture(texture.direction[(int)tile.direction], x, y, WHITE);
 }
 
