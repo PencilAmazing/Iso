@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "settings.h"
 #include "control.h"
+#include "gen/generate.h"
 
 /*
 * TODO:
@@ -30,7 +31,8 @@ int main(void)
     // typedef in tileset.h
     // https://mathworld.wolfram.com/GridGraph.html
     // TODO make this on the heap
-    TileMap heightmap(mapwidth + 1, std::vector<TileMap::value_type::value_type>(mapheight + 1, { 0 }));
+    //TileMap heightmap(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
+    TileMap heightmap = GenerateTileMap(5);
 
     // Main game loop
     while (!WindowShouldClose()) {
