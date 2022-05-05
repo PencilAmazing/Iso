@@ -48,6 +48,7 @@ void diamond(std::vector<std::vector<short>>& generation, int side, int x, int y
 void square(std::vector<std::vector<short>>& generation, int side, int x, int y, int stepSize)
 {
     int halfSize = stepSize / 2;
+    //short lower, upper;
     short t = access(generation, side, x, y - halfSize);
     short r = access(generation, side, x + halfSize, y);
     short b = access(generation, side, x, y + halfSize);
@@ -92,10 +93,6 @@ std::vector<std::vector<short>> GenerateHeightMap(int n)
     }
 
     return generation;
-
-    //for (int i = 0; i < side; i++)
-    //    free(generation[i]);
-    //free(generation);
 }
 
 TileMap GenerateTileMap(int n)
@@ -113,22 +110,22 @@ TileMap GenerateTileMap(int n)
 
     TileMap output(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
 
-    for (int x = 0; x < mapwidth; x++) {
-        for (int y = 0; y < mapheight; y++) {
+    for (int y = 0; y < mapheight; y++) {
+        for (int x = 0; x < mapwidth; x++) {
             //uint8_t corners = 0;
             MapTile& tile = output[x][y];
             short n = generation[x][y];
-            short w = generation[x+1][y];
-            short s = generation[x+1][y + 1];
-            short e = generation[x][y+1];
+            short e = generation[x + 1][y];
+            short s = generation[x + 1][y + 1];
+            short w = generation[x][y + 1];
             std::array<short, 4> tileCorners;
             short min = std::min({ n,w,e,s });
             //short max = std::max({ n,w,e,s });
 
-            if ((n - min) != 0) tile.corners |= Tile_North;
-            if ((w - min) != 0) tile.corners |= Tile_West;
-            if ((s - min) != 0) tile.corners |= Tile_South;
-            if ((e - min) != 0) tile.corners |= Tile_East;
+            if ((n - min) != 0) tile.corners |= NORTH_CORNER;
+            if ((w - min) != 0) tile.corners |= WEST_CORNER;
+            if ((s - min) != 0) tile.corners |= SOUTH_CORNER;
+            if ((e - min) != 0) tile.corners |= EAST_CORNER;
             tile.height = min;
         }
     }
