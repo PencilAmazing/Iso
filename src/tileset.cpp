@@ -27,23 +27,26 @@ void LoadTerrainSpritesheet()
     int yJump = 8 + tileHeight + 16;
     float yOffset = 0;
     for (int j = 0; j < 5; j++) {
-        for (int i = 0; i < 4; i++) {
-            Rectangle crop = { tileWidth * i, yOffset, tileWidth, tileHeight + 16 };
+        // start from west
+        int xOffset = 0;
+        for (int i : {TileDirection::Tile_West, TileDirection::Tile_South, TileDirection::Tile_East, TileDirection::Tile_North}) {
+            Rectangle crop = { tileWidth * xOffset, yOffset, tileWidth, tileHeight + 16 };
             copy = ImageFromImage(tilemap, crop);
             textureList[j]->direction[i] = LoadTextureFromImage(copy);
+            xOffset += 1;
         }
         yOffset += 48;
     }
 
     Rectangle crop = { 0, yOffset, tileWidth, tileHeight + 16 };
     copy = ImageFromImage(tilemap, crop);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_East] = LoadTextureFromImage(copy);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_West] = LoadTextureFromImage(copy);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_North] = LoadTextureFromImage(copy);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_South] = LoadTextureFromImage(copy);
 
     crop = { tileWidth, yOffset, tileWidth, tileHeight + 16 };
     copy = ImageFromImage(tilemap, crop);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_North] = LoadTextureFromImage(copy);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_South] = LoadTextureFromImage(copy);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_East] = LoadTextureFromImage(copy);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_West] = LoadTextureFromImage(copy);
 }
 
 TileDescription ReadTile(MapTile tile)

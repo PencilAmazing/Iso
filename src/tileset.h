@@ -17,13 +17,9 @@ W----0----E
 */
 enum TileDirection {
     Tile_North,
-    //Tile_NorthEast,
     Tile_East,
-    //Tile_SouthEast,
     Tile_South,
-    //Tile_SouthWest,
     Tile_West,
-    //Tile_NorthWest
 };
 
 enum TileElevation {
@@ -56,15 +52,15 @@ enum TileCorner : uint8_t {
 };
 
 enum SelectionStyle {
-    EastCorner,
-    NorthCorner,
-    WestCorner,
     SouthCorner,
+    WestCorner,
+    NorthCorner,
+    EastCorner,
     FullTile,
-    SouthWestEdge,
     SouthEastEdge,
-    NorthEastEdge,
-    NorthWestEdge
+    SouthWestEdge,
+    NorthWestEdge,
+    NorthEastEdge
 };
 
 const uint8_t ALL_CORNERS = NORTH_CORNER | EAST_CORNER | SOUTH_CORNER | WEST_CORNER;

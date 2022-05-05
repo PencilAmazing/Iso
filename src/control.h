@@ -30,35 +30,6 @@ void RaiseMountain(int x, int y, int heightLevel, TileMap& heightmap, Point size
     size.x -= 1;
     size.y -= 1;
 
-    // Northeast Edge
-    //for (int i = x - size.x; i <= x + size.x; i++) {
-    //    if (!IsPointWithinMap(i, y - 1)) continue;
-    //    MapTile& tile = heightmap[i][y - 1];
-    //    if (tile.height >= center.height) continue;
-    //    tile.corners = tile_element_raise_styles[7][tile.corners];
-    //};
-    // Northwest edge
-    //for (int j = y - size.y; j <= y + size.y; j++) {
-    //    if (!IsPointWithinMap(x - 1, j)) continue;
-    //    MapTile& tile = heightmap[x - 1][j];
-    //    if (tile.height >= center.height) continue;
-    //    tile.corners = tile_element_raise_styles[8][tile.corners];
-    //}
-    // Southwest edge
-    //for (int i = x - size.x; i <= x + size.x; i++) {
-    //    if (!IsPointWithinMap(i, y + 1)) continue;
-    //    MapTile& tile = heightmap[i][y + 1];
-    //    if (tile.height >= center.height) continue;
-    //    tile.corners = tile_element_raise_styles[5][tile.corners];
-    //}
-    // Southeast edge
-    //for (int j = y - size.y; j <= y + size.y; j++) {
-    //    if (!IsPointWithinMap(x + 1, j)) continue;
-    //    MapTile& tile = heightmap[x + 1][j];
-    //    if (tile.height >= center.height) continue;
-    //    tile.corners = tile_element_raise_styles[6][tile.corners];
-    //}
-
     // Raise Edges
     // Northeast
     RaiseSelection({ x - size.x , y - 1 }, { x + size.x, y - 1 }, heightLevel, NorthEastEdge, heightmap);

@@ -1,7 +1,8 @@
 #include "generate.h"
 
-int randmin = 0;
-int randmax = 4;
+// keep this above zero
+int randmin = 2;
+int randmax = 2;
 
 short access(std::vector<std::vector<short>>& array, int side, int x, int y)
 {
@@ -112,20 +113,21 @@ TileMap GenerateTileMap(int n)
 
     for (int y = 0; y < mapheight; y++) {
         for (int x = 0; x < mapwidth; x++) {
+            break;
             //uint8_t corners = 0;
             MapTile& tile = output[x][y];
             short n = generation[x][y];
+            short w = generation[x][y+1];
             short e = generation[x + 1][y];
             short s = generation[x + 1][y + 1];
-            short w = generation[x][y + 1];
             std::array<short, 4> tileCorners;
             short min = std::min({ n,w,e,s });
             //short max = std::max({ n,w,e,s });
 
             if ((n - min) != 0) tile.corners |= NORTH_CORNER;
-            if ((w - min) != 0) tile.corners |= WEST_CORNER;
             if ((s - min) != 0) tile.corners |= SOUTH_CORNER;
             if ((e - min) != 0) tile.corners |= EAST_CORNER;
+            if ((w - min) != 0) tile.corners |= WEST_CORNER;
             tile.height = min;
         }
     }
