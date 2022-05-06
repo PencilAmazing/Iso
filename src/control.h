@@ -31,21 +31,17 @@ void RaiseMountain(int x, int y, int heightLevel, TileMap& heightmap, Point size
     size.y -= 1;
 
     // Raise Edges
-    // Northeast
-    RaiseSelection({ x - size.x , y - 1 }, { x + size.x, y - 1 }, heightLevel, NorthEastEdge, heightmap);
-    // Northwest
-    RaiseSelection({ x - 1, y - size.y }, { x - 1, y + size.y }, heightLevel, NorthWestEdge, heightmap);
-    // Southwest
-    RaiseSelection({ x - size.x, y + 1 }, { x + size.x, y + 1 }, heightLevel, SouthWestEdge, heightmap);
-    // Southeast
-    RaiseSelection({ x + 1, y - size.y }, { x + 1, y + size.y }, heightLevel, SouthEastEdge, heightmap);
+    RaiseSelection({ x - size.x, y - 1 }, { x + size.x, y - 1 }, heightLevel, SouthEastEdge, heightmap);
+    RaiseSelection({ x - 1, y - size.y }, { x - 1, y + size.y }, heightLevel, NorthEastEdge, heightmap);
+    RaiseSelection({ x - size.x, y + 1 }, { x + size.x, y + 1 }, heightLevel, NorthWestEdge, heightmap);
+    RaiseSelection({ x + 1, y - size.y }, { x + 1, y + size.y }, heightLevel, SouthWestEdge, heightmap);
 
     // Raise corners
-    Point n = { x - 1, y - 1 };
+    Point n = { x + 1, y + 1 };
     RaiseSelection(n, n, heightLevel, NorthCorner, heightmap);
     Point w = { x - 1,y + 1 };
     RaiseSelection(w, w, heightLevel, WestCorner, heightmap);
-    Point s = { x + 1,y + 1 };
+    Point s = { x - 1,y - 1 };
     RaiseSelection(s, s, heightLevel, SouthCorner, heightmap);
     Point e = { x + 1, y - 1 };
     RaiseSelection(e, e, heightLevel, EastCorner, heightmap);

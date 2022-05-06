@@ -1,5 +1,9 @@
 #https://newgrf-specs.tt-wiki.net/wiki/NML:List_of_tile_slopes
 # the authority on isometric geography
+# or is it?
+# anyways, this should be reviewed everytime spritesheet is changed
+# because the orientations are hardcoded and I can't be bothered to
+# find a clever solution
 
 NORTH_CORNER = 1 << 0
 EAST_CORNER = 1 << 1
@@ -39,14 +43,14 @@ def read_pattern(pattern):
             # Normal slope
             if 'n' in pattern:
                 if 'w' in pattern:
-                    out[1] = "Tile_North"
-                elif 'e' in pattern:
-                    out[1] = "Tile_East"
-            elif 's' in pattern:
-                if 'w' in pattern:
                     out[1] = "Tile_West"
                 elif 'e' in pattern:
+                    out[1] = "Tile_North"
+            elif 's' in pattern:
+                if 'w' in pattern:
                     out[1] = "Tile_South"
+                elif 'e' in pattern:
+                    out[1] = "Tile_East"
     elif len(pattern) == 1:
         out[0] = "Tile_Corner"
         if pattern == 'n':

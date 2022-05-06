@@ -27,7 +27,6 @@ void LoadTerrainSpritesheet()
     int yJump = 8 + tileHeight + 16;
     float yOffset = 0;
     for (int j = 0; j < 5; j++) {
-        // start from west
         int xOffset = 0;
         for (int i : {TileDirection::Tile_West, TileDirection::Tile_South, TileDirection::Tile_East, TileDirection::Tile_North}) {
             Rectangle crop = { tileWidth * xOffset, yOffset, tileWidth, tileHeight + 16 };

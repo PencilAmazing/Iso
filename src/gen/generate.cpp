@@ -42,7 +42,7 @@ void diamond(std::vector<std::vector<short>>& generation, int side, int x, int y
     short upper = *std::min_element(n.begin(), n.end()) + halfSize;
 
     short avg = GetRandomValue(lower, upper);
-    set(generation, x + halfSize, y + halfSize, avg);
+    set(generation, x + halfSize, y + halfSize, 0);
 };
 
 // i,j is center of a diamond
@@ -58,7 +58,7 @@ void square(std::vector<std::vector<short>>& generation, int side, int x, int y,
     short lower = std::max({ t,r,b,l }) - halfSize;
     short upper = std::min({ t,r,b,l }) + halfSize;
     short avg = GetRandomValue(lower, upper);
-    set(generation, x, y, avg);
+    set(generation, x, y, 0);
 };
 
 // Generates a noise image using Diamond Square algorithm
@@ -100,9 +100,9 @@ TileMap GenerateTileMap(int n)
 {
     std::vector<std::vector<short>> generation = GenerateHeightMap(n);
 
-    for (int i = 0; i < std::pow(2, n) + 1; i++) {
+    for (int j = 0; j < std::pow(2, n) + 1; j++) {
         std::string line;
-        for (int j = 0; j < std::pow(2, n) + 1; j++) {
+        for (int i = 0; i < std::pow(2, n) + 1; i++) {
             line += std::to_string(generation[i][j]);
             line += ", ";
         }
@@ -113,7 +113,7 @@ TileMap GenerateTileMap(int n)
 
     for (int y = 0; y < mapheight; y++) {
         for (int x = 0; x < mapwidth; x++) {
-            break;
+            //break;
             //uint8_t corners = 0;
             MapTile& tile = output[x][y];
             short n = generation[x][y];
