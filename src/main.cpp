@@ -32,7 +32,7 @@ int main(void)
     // https://mathworld.wolfram.com/GridGraph.html
     // TODO make this on the heap
     //TileMap heightmap(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
-    TileMap heightmap = GenerateTileMap(5);
+    TileMap heightmap = GenerateTileMap(7);
 
     // Main game loop
     while (!WindowShouldClose()) {

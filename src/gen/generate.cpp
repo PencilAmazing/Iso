@@ -1,10 +1,10 @@
 #include "generate.h"
 
 // keep this above zero
-int randmin = 2;
-int randmax = 2;
+int randmin = 0;
+int randmax = 3;
 
-short access(std::vector<std::vector<short>>& array, int side, int x, int y)
+int access(std::vector<std::vector<int>>* array, int side, int x, int y)
 {
     //could be replaced with clearing the sign bit but eh
     //int i = abs(x) % (side + 1);
@@ -12,70 +12,90 @@ short access(std::vector<std::vector<short>>& array, int side, int x, int y)
     // this assumes side is a power of two
     int i = x & side;
     int j = y & side;
-    return array[i][j];
+    return (*array)[i][j];
 };
 
-void set(std::vector<std::vector<short>>& array, int x, int y, int value)
+void set(std::vector<std::vector<int>>* array, int x, int y, int value)
 {
-    array[x][y] = value;
+    (*array)[x][y] = value;
 };
 
 // i,j is top left corner of a square
-void diamond(std::vector<std::vector<short>>& generation, int side, int x, int y, int stepSize)
+void diamond(std::vector<std::vector<int>>* generation, int side, int x, int y, int stepSize)
 {
     int halfSize = stepSize / 2;
 
     // variable names are relative to center of the diamond
-    short bl = access(generation, side, x, y + stepSize);
-    short tl = access(generation, side, x, y);
-    short tr = access(generation, side, x + stepSize, y);
-    short br = access(generation, side, x + stepSize, y + stepSize);
+    int bl = access(generation, side, x, y + stepSize);
+    int tl = access(generation, side, x, y);
+    int tr = access(generation, side, x + stepSize, y);
+    int br = access(generation, side, x + stepSize, y + stepSize);
+    int b = access(generation, side, x + halfSize, y + stepSize + halfSize);
+    int r = access(generation, side, x + stepSize + halfSize, y + halfSize);
 
-    short t = access(generation, side, x + halfSize, y - stepSize);
-    short r = access(generation, side, x + stepSize + halfSize, y + halfSize);
-    short b = access(generation, side, x + halfSize, y + stepSize + halfSize);
-    short l = access(generation, side, x - halfSize, y + halfSize);
+    int lower = std::max({ bl,tl,tr,br,b,r });
+    int upper = std::min({ bl,tl,tr,br,b,r });
 
-    std::array<short, 8> n = { bl,tl,tr,br,t,r,b,l };
+    if (y > 0) {
+        int t = access(generation, side, x + halfSize, y - stepSize);
+        lower = std::max(t, lower);
+        upper = std::min(t, upper);
+    }
+    if (x > 0) {
+        int l = access(generation, side, x - halfSize, y + halfSize);
+        lower = std::max(l, lower);
+        upper = std::min(l, upper);
+    }
 
-    short lower = *std::max_element(n.begin(), n.end()) - halfSize;
-    short upper = *std::min_element(n.begin(), n.end()) + halfSize;
+    lower -= 2;
+    upper += 2;
 
-    short avg = GetRandomValue(lower, upper);
-    set(generation, x + halfSize, y + halfSize, 0);
+    int avg = GetRandomValue(lower, upper);
+    set(generation, x + halfSize, y + halfSize, avg);
 };
 
 // i,j is center of a diamond
-void square(std::vector<std::vector<short>>& generation, int side, int x, int y, int stepSize)
+void square(std::vector<std::vector<int>>* generation, int side, int x, int y, int stepSize)
 {
     int halfSize = stepSize / 2;
-    //short lower, upper;
-    short t = access(generation, side, x, y - halfSize);
-    short r = access(generation, side, x + halfSize, y);
-    short b = access(generation, side, x, y + halfSize);
-    short l = access(generation, side, x - halfSize, y);
-    // Height can change by one per step
-    short lower = std::max({ t,r,b,l }) - halfSize;
-    short upper = std::min({ t,r,b,l }) + halfSize;
-    short avg = GetRandomValue(lower, upper);
-    set(generation, x, y, 0);
+    // Wrap around makes them always available
+    int b = access(generation, side, x, y + halfSize);
+    int r = access(generation, side, x + halfSize, y);
+    int lower = std::max({ b,r });
+    int upper = std::min({ b,r });
+
+    if (x > stepSize) {
+        int l = access(generation, side, x - halfSize, y);
+        int lower = std::max(l, lower);
+        int upper = std::min(l, upper);
+    }
+    if (y > stepSize) {
+        int t = access(generation, side, x, y - halfSize);
+        int lower = std::max(t, lower);
+        int upper = std::min(t, upper);
+    }
+
+    lower -= 2;
+    upper += 2;
+    int avg = GetRandomValue(lower, upper);
+    set(generation, x, y, avg);
 };
 
 // Generates a noise image using Diamond Square algorithm
 // Image is a square of size 2^n + 1
 // 1->3, 2->5, 3->9, 4->17, 5->33
-std::vector<std::vector<short>> GenerateHeightMap(int n)
+std::vector<std::vector<int>>* GenerateHeightMap(int n)
 {
     if (n < 0) return {};
     int side = pow(2, n) + 1;
-    std::vector<std::vector<short>> generation = std::vector<std::vector<short>>(side, std::vector<short>(side, 0));
+    std::vector<std::vector<int>>* generation = new std::vector<std::vector<int>>(side, std::vector<int>(side, 0));
 
     //int randmin = -1;
     //int randmax = 1;
-    generation[0][0] = GetRandomValue(randmin, randmax);
-    generation[0][side - 1] = GetRandomValue(randmin, randmax);
-    generation[side - 1][0] = GetRandomValue(randmin, randmax);
-    generation[side - 1][side - 1] = GetRandomValue(randmin, randmax);
+    set(generation, 0, 0, GetRandomValue(randmin, randmax));
+    set(generation, 0, side - 1, GetRandomValue(randmin, randmax));
+    set(generation, side - 1, 0, GetRandomValue(randmin, randmax));
+    set(generation, side - 1, side - 1, GetRandomValue(randmin, randmax));
 
     for (int stepSize = side - 1; stepSize > 1; stepSize /= 2) {
         int halfSize = stepSize / 2;
@@ -88,9 +108,8 @@ std::vector<std::vector<short>> GenerateHeightMap(int n)
         // Square
         // i,j is center of a diamond
         for (int j = 0; j < side; j += halfSize)
-            for (int i = (j + halfSize) % stepSize; i < side; i += stepSize) {
+            for (int i = (j + halfSize) % stepSize; i < side; i += stepSize)
                 square(generation, side - 1, i, j, stepSize);
-            }
     }
 
     return generation;
@@ -98,15 +117,15 @@ std::vector<std::vector<short>> GenerateHeightMap(int n)
 
 TileMap GenerateTileMap(int n)
 {
-    std::vector<std::vector<short>> generation = GenerateHeightMap(n);
+    std::vector<std::vector<int>>* generation = GenerateHeightMap(n);
 
     for (int j = 0; j < std::pow(2, n) + 1; j++) {
         std::string line;
         for (int i = 0; i < std::pow(2, n) + 1; i++) {
-            line += std::to_string(generation[i][j]);
+            line += std::to_string((*generation)[i][j]);
             line += ", ";
         }
-        TraceLog(LOG_INFO, line.c_str());
+        //TraceLog(LOG_INFO, line.c_str());
     }
 
     TileMap output(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
@@ -116,19 +135,19 @@ TileMap GenerateTileMap(int n)
             //break;
             //uint8_t corners = 0;
             MapTile& tile = output[x][y];
-            short n = generation[x][y];
-            short w = generation[x][y+1];
-            short e = generation[x + 1][y];
-            short s = generation[x + 1][y + 1];
-            std::array<short, 4> tileCorners;
-            short min = std::min({ n,w,e,s });
-            //short max = std::max({ n,w,e,s });
+            int n = (*generation)[x][y];
+            int w = (*generation)[x][y + 1];
+            int e = (*generation)[x + 1][y];
+            int s = (*generation)[x + 1][y + 1];
+            std::array<int, 4> tileCorners;
+            int min = std::min({ n,w,e,s });
+            //int max = std::max({ n,w,e,s });
 
             if ((n - min) != 0) tile.corners |= NORTH_CORNER;
             if ((s - min) != 0) tile.corners |= SOUTH_CORNER;
             if ((e - min) != 0) tile.corners |= EAST_CORNER;
             if ((w - min) != 0) tile.corners |= WEST_CORNER;
-            tile.height = min;
+            tile.height = min*2;
         }
     }
 
