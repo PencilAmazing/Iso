@@ -32,7 +32,8 @@ int main(void)
     // https://mathworld.wolfram.com/GridGraph.html
     // TODO make this on the heap
     //TileMap heightmap(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
-    TileMap heightmap = GenerateTileMap(7);
+    //TileMap heightmap = GenerateTileMap(6);
+    TileMap heightmap = LoadHeightmap();
 
     // Main game loop
     while (!WindowShouldClose()) {
@@ -60,12 +61,12 @@ int main(void)
 
         for (int i = 0; i < mapwidth; i++) { // x
             for (int j = 0; j < mapheight; j++) { // y
-                // Weird offsets because of weird tile with weird space above
+                        // Weird offsets because of weird tile with weird space above
 
-                //if (i == selected.x && j == selected.y)
-                    //DrawCursor(selected.x, selected.y, false);
+                        //if (i == selected.x && j == selected.y)
+                            //DrawCursor(selected.x, selected.y, false);
                 DrawTile(i, j, heightmap);
-                DrawCursor(selected.x, selected.y);
+                //DrawCursor(selected.x, selected.y);
             }
         };
 
@@ -88,6 +89,9 @@ int main(void)
 
         EndDrawing();
     }
+
+    // Turns out not cleaning up causes glitches later on
+    UnloadTerrainSpritesheet();
 
     CloseWindow();
 

@@ -139,21 +139,57 @@ TileMap GenerateTileMap(int n)
             int w = (*generation)[x][y + 1];
             int e = (*generation)[x + 1][y];
             int s = (*generation)[x + 1][y + 1];
-            std::array<int, 4> tileCorners;
+            //std::array<int, 4> tileCorners;
             int min = std::min({ n,w,e,s });
-            //int max = std::max({ n,w,e,s });
+            int max = std::max({ n,w,e,s });
 
-            if ((n - min) != 0) tile.corners |= NORTH_CORNER;
-            if ((s - min) != 0) tile.corners |= SOUTH_CORNER;
-            if ((e - min) != 0) tile.corners |= EAST_CORNER;
-            if ((w - min) != 0) tile.corners |= WEST_CORNER;
-            tile.height = min*2;
+            if (min != max) {
+                if ((n - min) != 0) tile.corners |= NORTH_CORNER;
+                if ((s - min) != 0) tile.corners |= SOUTH_CORNER;
+                if ((e - min) != 0) tile.corners |= EAST_CORNER;
+                if ((w - min) != 0) tile.corners |= WEST_CORNER;
+                if (max - min == 2) tile.corners |= STEEP_CORNER;
+            }
+            tile.height == min / 2;
         }
     }
 
-    //for (int i = 0; i < mapwidth + 1; i++)
-    //    delete[] generation[i];
-    //delete[] generation;
+    delete generation;
 
+    return output;
+}
+
+
+TileMap LoadHeightmap()
+{
+    Image heightmap = LoadImage("assets/River Valley Floodplains.png");
+    TileMap output(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
+
+    for (int j = 0; j < mapheight; j++) {
+        for (int i = 0; i < mapwidth - 1; i++) {
+            MapTile& tile = output[i][j];
+
+            int n = GetImageColor(heightmap, i, j).b / 16;
+            int w = GetImageColor(heightmap, i, j + 1).b / 16;
+            int s = GetImageColor(heightmap, i + 1, j).b / 16;
+            int e = GetImageColor(heightmap, i + 1, j + 1).b / 16;
+
+            int min = std::min({ n,w,e,s });
+            int max = std::max({ n,w,e,s });
+            if ((n - min) != 0)
+                tile.corners |= NORTH_CORNER;
+            if ((s - min) != 0)
+                tile.corners |= EAST_CORNER;
+            if ((w - min) != 0) 
+                tile.corners |= WEST_CORNER;
+            if ((e - min) != 0)
+                tile.corners |= SOUTH_CORNER;
+            if (max - min == 2)
+                tile.corners |= STEEP_CORNER;
+            tile.height = min;
+        }
+    }
+
+    UnloadImage(heightmap);
     return output;
 }

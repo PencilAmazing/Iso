@@ -39,7 +39,7 @@ struct TileDescription {
 };
 
 struct TileTexture {
-    Texture direction[4];
+    Texture2D direction[4];
 };
 
 enum TileCorner : uint8_t {
@@ -220,10 +220,11 @@ Point IsoToCartesian(int i, int j);
 Point CartesianToIso(float x, float y);
 
 void LoadTerrainSpritesheet();
+void UnloadTerrainSpritesheet();
 
 TileDescription ReadTile(MapTile tile);
 
 // Takes in map coords
-void DrawTile(int i, int j, TileMap heightmap);
+void DrawTile(int i, int j, TileMap& heightmap);
 // Takes in map coords
 void DrawCursor(int i, int j);

@@ -95,7 +95,7 @@ void RaiseTerrain(int x, int y, int size, TileMap& heightmap)
     for (int i = x - size; i <= x + size; i++) {
         for (int j = y - size; j <= y + size; j++) {
             if (heightmap[i][j].corners & CHANGE_ELEVATION)
-                heightmap[i][j].height += 2;
+                heightmap[i][j].height += 1;
             heightmap[i][j].corners &= ALL_CORNER_FLAGS;
         }
     }

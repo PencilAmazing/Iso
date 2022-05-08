@@ -179,7 +179,7 @@
 
 #include <stdlib.h>                 // Required for: srand(), rand(), atexit()
 #include <stdio.h>                  // Required for: sprintf() [Used in OpenURL()]
-#include <string.h>                 // Required for: strrchr(), strcmp(), strlen()
+#include <string.h>                 // Required for: strrchr(), strcmp(), strlen(), memset()
 #include <time.h>                   // Required for: time() [Used in InitTimer()]
 #include <math.h>                   // Required for: tan() [Used in BeginMode3D()], atan2f() [Used in LoadVrStereoConfig()]
 
@@ -755,7 +755,8 @@ void InitWindow(int width, int height, const char *title)
 
     if ((title != NULL) && (title[0] != 0)) CORE.Window.title = title;
 
-    // Initialize required global values different than 0
+    // Initialize global input state
+    memset(&CORE.Input, 0, sizeof(CORE.Input));
     CORE.Input.Keyboard.exitKey = KEY_ESCAPE;
     CORE.Input.Mouse.scale = (Vector2){ 1.0f, 1.0f };
     CORE.Input.Mouse.cursor = MOUSE_CURSOR_ARROW;
@@ -1175,39 +1176,39 @@ bool IsWindowState(unsigned int flag)
 void ToggleFullscreen(void)
 {
 #if defined(PLATFORM_DESKTOP)
-    // NOTE: glfwSetWindowMonitor() doesn't work properly (bugs)
+    // TODO: glfwSetWindowMonitor() doesn't work properly (bugs)
     if (!CORE.Window.fullscreen)
     {
         // Store previous window position (in case we exit fullscreen)
         glfwGetWindowPos(CORE.Window.handle, &CORE.Window.position.x, &CORE.Window.position.y);
 
         int monitorCount = 0;
-        GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
-
         int monitorIndex = GetCurrentMonitor();
+        GLFWmonitor **monitors = glfwGetMonitors(&monitorCount);
 
         // Use current monitor, so we correctly get the display the window is on
-        GLFWmonitor* monitor = monitorIndex < monitorCount ?  monitors[monitorIndex] : NULL;
+        GLFWmonitor *monitor = (monitorIndex < monitorCount)? monitors[monitorIndex] : NULL;
 
-        if (!monitor)
+        if (monitor == NULL)
         {
             TRACELOG(LOG_WARNING, "GLFW: Failed to get monitor");
 
-            CORE.Window.fullscreen = false;          // Toggle fullscreen flag
+            CORE.Window.fullscreen = false;
             CORE.Window.flags &= ~FLAG_FULLSCREEN_MODE;
 
             glfwSetWindowMonitor(CORE.Window.handle, NULL, 0, 0, CORE.Window.screen.width, CORE.Window.screen.height, GLFW_DONT_CARE);
-            return;
         }
+        else
+        {
+            CORE.Window.fullscreen = true;
+            CORE.Window.flags |= FLAG_FULLSCREEN_MODE;
 
-        CORE.Window.fullscreen = true;          // Toggle fullscreen flag
-        CORE.Window.flags |= FLAG_FULLSCREEN_MODE;
-
-        glfwSetWindowMonitor(CORE.Window.handle, monitor, 0, 0, CORE.Window.screen.width, CORE.Window.screen.height, GLFW_DONT_CARE);
+            glfwSetWindowMonitor(CORE.Window.handle, monitor, 0, 0, CORE.Window.screen.width, CORE.Window.screen.height, GLFW_DONT_CARE);
+        }
     }
     else
     {
-        CORE.Window.fullscreen = false;          // Toggle fullscreen flag
+        CORE.Window.fullscreen = false;
         CORE.Window.flags &= ~FLAG_FULLSCREEN_MODE;
 
         glfwSetWindowMonitor(CORE.Window.handle, NULL, CORE.Window.position.x, CORE.Window.position.y, CORE.Window.screen.width, CORE.Window.screen.height, GLFW_DONT_CARE);
@@ -2200,8 +2201,10 @@ void BeginTextureMode(RenderTexture2D target)
 
     rlEnableFramebuffer(target.id); // Enable render target
 
-    // Set viewport to framebuffer size
+    // Set viewport and RLGL internal framebuffer size
     rlViewport(0, 0, target.texture.width, target.texture.height);
+    rlSetFramebufferWidth(target.texture.width);
+    rlSetFramebufferHeight(target.texture.height);
 
     rlMatrixMode(RL_PROJECTION);    // Switch to projection matrix
     rlLoadIdentity();               // Reset current matrix (projection)
@@ -2347,8 +2350,8 @@ VrStereoConfig LoadVrStereoConfig(VrDeviceInfo device)
 
         // Fovy is normally computed with: 2*atan2f(device.vScreenSize, 2*device.eyeToScreenDistance)
         // ...but with lens distortion it is increased (see Oculus SDK Documentation)
-        //float fovy = 2.0f*atan2f(device.vScreenSize*0.5f*distortionScale, device.eyeToScreenDistance);     // Really need distortionScale?
-        float fovy = 2.0f*(float)atan2f(device.vScreenSize*0.5f, device.eyeToScreenDistance);
+        float fovy = 2.0f*atan2f(device.vScreenSize*0.5f*distortionScale, device.eyeToScreenDistance);     // Really need distortionScale?
+       // float fovy = 2.0f*(float)atan2f(device.vScreenSize*0.5f, device.eyeToScreenDistance);
 
         // Compute camera projection matrices
         float projOffset = 4.0f*lensShift;      // Scaled to projection space coordinates [-1..1]
@@ -3186,7 +3189,7 @@ long GetFileModTime(const char *fileName)
     return 0;
 }
 
-// Compress data (DEFLATE algorythm)
+// Compress data (DEFLATE algorithm)
 unsigned char *CompressData(const unsigned char *data, int dataSize, int *compDataSize)
 {
     #define COMPRESSION_QUALITY_DEFLATE  8
@@ -3206,7 +3209,7 @@ unsigned char *CompressData(const unsigned char *data, int dataSize, int *compDa
     return compData;
 }
 
-// Decompress data (DEFLATE algorythm)
+// Decompress data (DEFLATE algorithm)
 unsigned char *DecompressData(const unsigned char *compData, int compDataSize, int *dataSize)
 {
     unsigned char *data = NULL;
@@ -4838,7 +4841,7 @@ void WaitTime(float ms)
         double currentTime = 0.0;
 
         // Partial busy wait loop (only a fraction of the total wait time)
-        while ((currentTime - previousTime) < busyWait/1000.0f) currentTime = GetTime();
+        while ((currentTime - previousTime) < (busyWait/1000.0f)) currentTime = GetTime();
     #endif
 #endif
 }
@@ -4854,53 +4857,31 @@ void SwapScreenBuffer(void)
     eglSwapBuffers(CORE.Window.device, CORE.Window.surface);
 
 #if defined(PLATFORM_DRM)
-    if (!CORE.Window.gbmSurface || (-1 == CORE.Window.fd) || !CORE.Window.connector || !CORE.Window.crtc)
-    {
-        TRACELOG(LOG_ERROR, "DISPLAY: DRM initialization failed to swap");
-        abort();
-    }
+
+    if (!CORE.Window.gbmSurface || (-1 == CORE.Window.fd) || !CORE.Window.connector || !CORE.Window.crtc) TRACELOG(LOG_ERROR, "DISPLAY: DRM initialization failed to swap");
 
     struct gbm_bo *bo = gbm_surface_lock_front_buffer(CORE.Window.gbmSurface);
-    if (!bo)
-    {
-        TRACELOG(LOG_ERROR, "DISPLAY: Failed GBM to lock front buffer");
-        abort();
-    }
+    if (!bo) TRACELOG(LOG_ERROR, "DISPLAY: Failed GBM to lock front buffer");
 
     uint32_t fb = 0;
-    int result = drmModeAddFB(CORE.Window.fd, CORE.Window.connector->modes[CORE.Window.modeIndex].hdisplay,
-        CORE.Window.connector->modes[CORE.Window.modeIndex].vdisplay, 24, 32, gbm_bo_get_stride(bo), gbm_bo_get_handle(bo).u32, &fb);
-    if (0 != result)
-    {
-        TRACELOG(LOG_ERROR, "DISPLAY: drmModeAddFB() failed with result: %d", result);
-        abort();
-    }
+    int result = drmModeAddFB(CORE.Window.fd, CORE.Window.connector->modes[CORE.Window.modeIndex].hdisplay, CORE.Window.connector->modes[CORE.Window.modeIndex].vdisplay, 24, 32, gbm_bo_get_stride(bo), gbm_bo_get_handle(bo).u32, &fb);
+    if (result != 0) TRACELOG(LOG_ERROR, "DISPLAY: drmModeAddFB() failed with result: %d", result);
 
-    result = drmModeSetCrtc(CORE.Window.fd, CORE.Window.crtc->crtc_id, fb, 0, 0,
-        &CORE.Window.connector->connector_id, 1, &CORE.Window.connector->modes[CORE.Window.modeIndex]);
-    if (0 != result)
-    {
-        TRACELOG(LOG_ERROR, "DISPLAY: drmModeSetCrtc() failed with result: %d", result);
-        abort();
-    }
+    result = drmModeSetCrtc(CORE.Window.fd, CORE.Window.crtc->crtc_id, fb, 0, 0, &CORE.Window.connector->connector_id, 1, &CORE.Window.connector->modes[CORE.Window.modeIndex]);
+    if (result != 0) TRACELOG(LOG_ERROR, "DISPLAY: drmModeSetCrtc() failed with result: %d", result);
 
     if (CORE.Window.prevFB)
     {
         result = drmModeRmFB(CORE.Window.fd, CORE.Window.prevFB);
-        if (0 != result)
-        {
-            TRACELOG(LOG_ERROR, "DISPLAY: drmModeRmFB() failed with result: %d", result);
-            abort();
-        }
+        if (result != 0) TRACELOG(LOG_ERROR, "DISPLAY: drmModeRmFB() failed with result: %d", result);
     }
+
     CORE.Window.prevFB = fb;
 
-    if (CORE.Window.prevBO)
-    {
-        gbm_surface_release_buffer(CORE.Window.gbmSurface, CORE.Window.prevBO);
-    }
+    if (CORE.Window.prevBO) gbm_surface_release_buffer(CORE.Window.gbmSurface, CORE.Window.prevBO);
 
     CORE.Window.prevBO = bo;
+
 #endif  // PLATFORM_DRM
 #endif  // PLATFORM_ANDROID || PLATFORM_RPI || PLATFORM_DRM
 }
@@ -5403,10 +5384,10 @@ static void MouseCursorPosCallback(GLFWwindow *window, double x, double y)
 #endif
 }
 
-// GLFW3 Srolling Callback, runs on mouse wheel
+// GLFW3 Scrolling Callback, runs on mouse wheel
 static void MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    if (xoffset != 0.0) CORE.Input.Mouse.currentWheelMove = (float)xoffset;
+    if (fabs(xoffset) > fabs(yoffset)) CORE.Input.Mouse.currentWheelMove = (float)xoffset;
     else CORE.Input.Mouse.currentWheelMove = (float)yoffset;
 }
 
@@ -5998,7 +5979,8 @@ static void InitEvdevInput(void)
     {
         while ((entity = readdir(directory)) != NULL)
         {
-            if (strncmp("event", entity->d_name, strlen("event")) == 0)         // Search for devices named "event*"
+            if ((strncmp("event", entity->d_name, strlen("event")) == 0) ||     // Search for devices named "event*"
+                (strncmp("mouse", entity->d_name, strlen("mouse")) == 0))       // Search for devices named "mouse*"
             {
                 sprintf(path, "%s%s", DEFAULT_EVDEV_PATH, entity->d_name);
                 ConfigureEvdevDevice(path);                                     // Configure the device if appropriate
@@ -6158,7 +6140,7 @@ static void ConfigureEvdevDevice(char *device)
 
     // Decide what to do with the device
     //-------------------------------------------------------------------------------------------------------
-    if (worker->isKeyboard && CORE.Input.Keyboard.fd == -1)
+    if (worker->isKeyboard && (CORE.Input.Keyboard.fd == -1))
     {
         // Use the first keyboard encountered. This assumes that a device that says it's a keyboard is just a
         // keyboard. The keyboard is polled synchronously, whereas other input devices are polled in separate
@@ -6470,7 +6452,7 @@ static void InitGamepad(void)
     {
         sprintf(gamepadDev, "%s%i", DEFAULT_GAMEPAD_DEV, i);
 
-        if ((CORE.Input.Gamepad.streamId[i] = open(gamepadDev, O_RDONLY|O_NONBLOCK)) < 0)
+        if ((CORE.Input.Gamepad.streamId[i] = open(gamepadDev, O_RDONLY | O_NONBLOCK)) < 0)
         {
             // NOTE: Only show message for first gamepad
             if (i == 0) TRACELOG(LOG_WARNING, "RPI: Failed to open Gamepad device, no gamepad available");

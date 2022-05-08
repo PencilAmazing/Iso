@@ -17,6 +17,16 @@ Point CartesianToIso(float x, float y)
     };
 }
 
+void UnloadTerrainSpritesheet()
+{
+    TileTexture* textureList[] = { &FloorTile, &CornerSlopeTile, &SlopeTile, &ThreeQuarterSlopeTile, &SteepSlopeTile };
+    for (auto& texture : textureList) {
+        for (Texture& dir : texture->direction) {
+            UnloadTexture(dir);
+        }
+    }
+}
+
 void LoadTerrainSpritesheet()
 {
     Image tilemap = LoadImage("assets/tiles_grass.png");
@@ -32,6 +42,7 @@ void LoadTerrainSpritesheet()
             Rectangle crop = { tileWidth * xOffset, yOffset, tileWidth, tileHeight + 16 };
             copy = ImageFromImage(tilemap, crop);
             textureList[j]->direction[i] = LoadTextureFromImage(copy);
+            //UnloadImage(copy);
             xOffset += 1;
         }
         yOffset += 48;
@@ -41,11 +52,15 @@ void LoadTerrainSpritesheet()
     copy = ImageFromImage(tilemap, crop);
     SaddleSlopeTile.direction[(int)TileDirection::Tile_North] = LoadTextureFromImage(copy);
     SaddleSlopeTile.direction[(int)TileDirection::Tile_South] = LoadTextureFromImage(copy);
+    //UnloadImage(copy);
 
     crop = { tileWidth, yOffset, tileWidth, tileHeight + 16 };
     copy = ImageFromImage(tilemap, crop);
     SaddleSlopeTile.direction[(int)TileDirection::Tile_East] = LoadTextureFromImage(copy);
     SaddleSlopeTile.direction[(int)TileDirection::Tile_West] = LoadTextureFromImage(copy);
+    //UnloadImage(copy);
+
+    UnloadImage(tilemap);
 }
 
 TileDescription ReadTile(MapTile tile)
@@ -60,7 +75,7 @@ TileDescription ReadTile(MapTile tile)
 };
 
 // Takes in map coords
-void DrawTile(int i, int j, TileMap heightmap)
+void DrawTile(int i, int j, TileMap& heightmap)
 {
     Point coords = IsoToCartesian(i, j);
     int x = coords.x;
@@ -98,7 +113,7 @@ void DrawTile(int i, int j, TileMap heightmap)
     };
 
     // Tile set i'm using has really weird margins.
-    int height = (int)(heightmap[i][j].height / 2);
+    int height = (int)(heightmap[i][j].height);
     y -= (tileHeight / 4) * height;
     DrawTexture(texture.direction[(int)tile.direction], x, y, WHITE);
 }
@@ -108,7 +123,7 @@ void DrawCursor(int i, int j)
     Point coords = IsoToCartesian(i, j);
     int x = coords.x;
     int y = coords.y;
-    Color cursorColor = (int)GetFrameTime() % 2 == 0 ? WHITE : RED;
+    //Color cursorColor = (int)GetFrameTime() % 2 == 0 ? WHITE : RED;
 
     DrawCircle(x + tileWidth, y + tileHeight / 2 + 8, 5, BLUE);
     DrawCircle(x + tileWidth / 2, y + 8, 5, ORANGE);
