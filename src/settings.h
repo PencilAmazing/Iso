@@ -4,9 +4,10 @@ namespace {
     struct {
         bool MountainTool = true; // Should smooth neighbors
         int Size = 0; // 0 means tile/corner level selection
+        bool DrawCursor = true;
     } ControlSettings;
 
-    const int screenWidth = 1000;
+    const int screenWidth = 1200;
     const int screenHeight = 900;
 
     // Terrain generation breaks on non power of 2

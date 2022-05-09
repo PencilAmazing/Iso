@@ -164,7 +164,7 @@ TileMap GenerateTileMap(int n)
 
 TileMap LoadHeightmap(Point* dim)
 {
-    Image heightmap = LoadImage("assets/Jerash.png");
+    Image heightmap = LoadImage("assets/Amman.png");
     if (dim) {
         dim->x = heightmap.width;
         dim->y = heightmap.height;

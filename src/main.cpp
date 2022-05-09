@@ -72,7 +72,8 @@ int main(void)
                 DrawTile(i, j, heightmap);
             }
         };
-        DrawCursor(selected.x, selected.y);
+        if(ControlSettings.DrawCursor)
+            DrawCursor(selected.x, selected.y);
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             int size = 1;
@@ -84,6 +85,8 @@ int main(void)
         if (IsKeyPressed(KEY_M)) {
             ControlSettings.MountainTool = !ControlSettings.MountainTool;
         }
+        if (IsKeyPressed(KEY_C))
+            ControlSettings.DrawCursor = !ControlSettings.DrawCursor;
         //DrawCircle(camera.target.x, camera.target.y, 12, RED);
 
         DrawCircle(tileWidthHalf, tileHeightHalf, 5, BLUE);

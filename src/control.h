@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tileset.h"
+#include "tileset/tileset.h"
 
 // 0 == floor
 // 1 == slope

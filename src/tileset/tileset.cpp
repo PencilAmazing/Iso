@@ -24,7 +24,7 @@ void UnloadTerrainSpritesheet()
 
 void LoadTerrainSpritesheet()
 {
-    TerrainSpritesheet = LoadTexture("assets/tiles_sand.png");
+    TerrainSpritesheet = LoadTexture("assets/tiles_grass.png");
     // Saddles get special treatement
     TileTexture* textureList[] = { &FloorTile, &CornerSlopeTile, &SlopeTile, &ThreeQuarterSlopeTile, &SteepSlopeTile };
 
