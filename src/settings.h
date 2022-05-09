@@ -16,5 +16,8 @@ namespace {
     const int tileWidth = 64;
     const int tileHeight = 32;
 
+    const int tileWidthHalf = tileWidth / 2;
+    const int tileHeightHalf = tileHeight / 2;
+
     const float cameraSpeed = 30;
 };

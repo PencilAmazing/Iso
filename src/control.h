@@ -62,7 +62,7 @@ This is why people use engines
 void RaiseTerrain(int x, int y, int size, TileMap& heightmap)
 {
     // Bounds check
-    if (x < 0 || x >= mapwidth || y < 0 || y >= mapheight) return;
+    if (x < 0 || x >=mapwidth || y < 0 || y >= mapheight) return;
     if (size <= 0) return;
 
     // Clamp height (for now)

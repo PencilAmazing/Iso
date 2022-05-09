@@ -119,20 +119,20 @@ TileMap GenerateTileMap(int n)
 {
     std::vector<std::vector<int>>* generation = GenerateHeightMap(n);
 
+    std::string line;
     for (int j = 0; j < std::pow(2, n) + 1; j++) {
-        std::string line;
         for (int i = 0; i < std::pow(2, n) + 1; i++) {
             line += std::to_string((*generation)[i][j]);
             line += ", ";
         }
-        //TraceLog(LOG_INFO, line.c_str());
+        TraceLog(LOG_INFO, line.c_str());
+        line.clear();
     }
 
     TileMap output(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
 
-    for (int y = 0; y < mapheight; y++) {
-        for (int x = 0; x < mapwidth; x++) {
-            //break;
+    for (int y = 0; y < mapheight - 1; y++) {
+        for (int x = 0; x < mapwidth - 1; x++) {
             //uint8_t corners = 0;
             MapTile& tile = output[x][y];
             int n = (*generation)[x][y];
@@ -142,15 +142,17 @@ TileMap GenerateTileMap(int n)
             //std::array<int, 4> tileCorners;
             int min = std::min({ n,w,e,s });
             int max = std::max({ n,w,e,s });
-
-            if (min != max) {
-                if ((n - min) != 0) tile.corners |= NORTH_CORNER;
-                if ((s - min) != 0) tile.corners |= SOUTH_CORNER;
-                if ((e - min) != 0) tile.corners |= EAST_CORNER;
-                if ((w - min) != 0) tile.corners |= WEST_CORNER;
-                if (max - min == 2) tile.corners |= STEEP_CORNER;
-            }
-            tile.height == min / 2;
+            if ((n - min) != 0)
+                tile.corners |= NORTH_CORNER;
+            if ((s - min) != 0)
+                tile.corners |= EAST_CORNER;
+            if ((w - min) != 0)
+                tile.corners |= WEST_CORNER;
+            if ((e - min) != 0)
+                tile.corners |= SOUTH_CORNER;
+            if (max - min == 2)
+                tile.corners |= STEEP_CORNER;
+            tile.height = min;
         }
     }
 
@@ -162,11 +164,11 @@ TileMap GenerateTileMap(int n)
 
 TileMap LoadHeightmap()
 {
-    Image heightmap = LoadImage("assets/River Valley Floodplains.png");
-    TileMap output(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
+    Image heightmap = LoadImage("assets/Amman.png");
+    TileMap output(heightmap.width, std::vector<TileMap::value_type::value_type>(heightmap.height, { 0 }));
 
-    for (int j = 0; j < mapheight; j++) {
-        for (int i = 0; i < mapwidth - 1; i++) {
+    for (int j = 0; j < heightmap.height - 1; j++) {
+        for (int i = 0; i < heightmap.width - 1; i++) {
             MapTile& tile = output[i][j];
 
             int n = GetImageColor(heightmap, i, j).b / 16;
@@ -180,10 +182,10 @@ TileMap LoadHeightmap()
                 tile.corners |= NORTH_CORNER;
             if ((s - min) != 0)
                 tile.corners |= EAST_CORNER;
-            if ((w - min) != 0) 
+            if ((w - min) != 0)
                 tile.corners |= WEST_CORNER;
             if ((e - min) != 0)
-                tile.corners |= SOUTH_CORNER;
+                tile.corners |= SOUTH_CORNER; // ????
             if (max - min == 2)
                 tile.corners |= STEEP_CORNER;
             tile.height = min;

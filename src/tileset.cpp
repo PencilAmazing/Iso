@@ -19,18 +19,12 @@ Point CartesianToIso(float x, float y)
 
 void UnloadTerrainSpritesheet()
 {
-    TileTexture* textureList[] = { &FloorTile, &CornerSlopeTile, &SlopeTile, &ThreeQuarterSlopeTile, &SteepSlopeTile };
-    for (auto& texture : textureList) {
-        for (Texture& dir : texture->direction) {
-            UnloadTexture(dir);
-        }
-    }
+    UnloadTexture(TerrainSpritesheet);
 }
 
 void LoadTerrainSpritesheet()
 {
-    Image tilemap = LoadImage("assets/tiles_grass.png");
-    Image copy;
+    TerrainSpritesheet = LoadTexture("assets/tiles_sand.png");
     // Saddles get special treatement
     TileTexture* textureList[] = { &FloorTile, &CornerSlopeTile, &SlopeTile, &ThreeQuarterSlopeTile, &SteepSlopeTile };
 
@@ -40,27 +34,20 @@ void LoadTerrainSpritesheet()
         int xOffset = 0;
         for (int i : {TileDirection::Tile_West, TileDirection::Tile_South, TileDirection::Tile_East, TileDirection::Tile_North}) {
             Rectangle crop = { tileWidth * xOffset, yOffset, tileWidth, tileHeight + 16 };
-            copy = ImageFromImage(tilemap, crop);
-            textureList[j]->direction[i] = LoadTextureFromImage(copy);
-            //UnloadImage(copy);
+            //textureList[j]->direction[i] = LoadTextureFromImage(copy);
+            textureList[j]->direction[i] = crop;
             xOffset += 1;
         }
         yOffset += 48;
     }
 
     Rectangle crop = { 0, yOffset, tileWidth, tileHeight + 16 };
-    copy = ImageFromImage(tilemap, crop);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_North] = LoadTextureFromImage(copy);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_South] = LoadTextureFromImage(copy);
-    //UnloadImage(copy);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_North] = crop;
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_South] = crop;
 
     crop = { tileWidth, yOffset, tileWidth, tileHeight + 16 };
-    copy = ImageFromImage(tilemap, crop);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_East] = LoadTextureFromImage(copy);
-    SaddleSlopeTile.direction[(int)TileDirection::Tile_West] = LoadTextureFromImage(copy);
-    //UnloadImage(copy);
-
-    UnloadImage(tilemap);
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_East] = crop;
+    SaddleSlopeTile.direction[(int)TileDirection::Tile_West] = crop;
 }
 
 TileDescription ReadTile(MapTile tile)
@@ -109,13 +96,14 @@ void DrawTile(int i, int j, TileMap& heightmap)
         assert("You broke it");
         //assert(false, "Invalid I guess");
         //texture = CrateTile;
-        break;
+        return;
     };
 
     // Tile set i'm using has really weird margins.
     int height = (int)(heightmap[i][j].height);
     y -= (tileHeight / 4) * height;
-    DrawTexture(texture.direction[(int)tile.direction], x, y, WHITE);
+    //DrawTexture(texture.direction[(int)tile.direction], x, y, WHITE);
+    DrawTextureRec(TerrainSpritesheet, texture.direction[(int)tile.direction], { (float)x, (float)y }, WHITE);
 }
 
 void DrawCursor(int i, int j)

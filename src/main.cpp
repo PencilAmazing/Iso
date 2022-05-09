@@ -26,13 +26,16 @@ int main(void)
     camera.target = { 300,300 };
     camera.offset = { screenWidth / 2.0f, screenHeight / 2.0f };
     camera.rotation = 0.f;
-    camera.zoom = 1.f;
+    camera.zoom = 0.5f;
 
     // typedef in tileset.h
     // https://mathworld.wolfram.com/GridGraph.html
-    // TODO make this on the heap
     //TileMap heightmap(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
+
+    //mapheight = mapheight = std::pow(2,6);
     //TileMap heightmap = GenerateTileMap(6);
+
+    //ControlSettings.mapheight = ControlSettings.mapheight = 1024;
     TileMap heightmap = LoadHeightmap();
 
     // Main game loop
@@ -59,16 +62,16 @@ int main(void)
         //mousePos.y *= camera.zoom;
         Point selected = CartesianToIso(mousePos.x, mousePos.y);
 
-        for (int i = 0; i < mapwidth; i++) { // x
-            for (int j = 0; j < mapheight; j++) { // y
-                        // Weird offsets because of weird tile with weird space above
+        Point center = CartesianToIso(camera.target.x, camera.target.y);
+        int offsetx = ((screenWidth) / tileWidthHalf) / camera.zoom;
+        int offsety = ((screenHeight) / tileHeightHalf) / camera.zoom;
 
-                        //if (i == selected.x && j == selected.y)
-                            //DrawCursor(selected.x, selected.y, false);
+        for (int i = std::clamp(center.x - offsetx, 0, mapwidth); i <= std::clamp(center.x + offsetx, 0, mapwidth); i++) { // x
+            for (int j = std::clamp(center.y - offsety, 0, mapheight); j < std::clamp(center.y + offsety, 0, mapheight); j++) { // y
                 DrawTile(i, j, heightmap);
-                //DrawCursor(selected.x, selected.y);
             }
         };
+        DrawCursor(selected.x, selected.y);
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             int size = 1;
@@ -80,9 +83,9 @@ int main(void)
         if (IsKeyPressed(KEY_M)) {
             ControlSettings.MountainTool = !ControlSettings.MountainTool;
         }
+        //DrawCircle(camera.target.x, camera.target.y, 12, RED);
 
-        DrawCircle(0, 0, 5, RED);
-        DrawCircle(tileWidth / 2, tileHeight / 2, 5, BLUE);
+        DrawCircle(tileWidthHalf, tileHeightHalf, 5, BLUE);
         EndMode2D();
 
         WriteDebugToScreen(mousePos, selected, heightmap);
