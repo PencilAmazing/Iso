@@ -36,7 +36,8 @@ int main(void)
     //TileMap heightmap = GenerateTileMap(6);
 
     //ControlSettings.mapheight = ControlSettings.mapheight = 1024;
-    TileMap heightmap = LoadHeightmap();
+    Point dimensions = { 0,0 };
+    TileMap heightmap = LoadHeightmap(&dimensions);
 
     // Main game loop
     while (!WindowShouldClose()) {
@@ -66,8 +67,8 @@ int main(void)
         int offsetx = ((screenWidth) / tileWidthHalf) / camera.zoom;
         int offsety = ((screenHeight) / tileHeightHalf) / camera.zoom;
 
-        for (int i = std::clamp(center.x - offsetx, 0, mapwidth); i <= std::clamp(center.x + offsetx, 0, mapwidth); i++) { // x
-            for (int j = std::clamp(center.y - offsety, 0, mapheight); j < std::clamp(center.y + offsety, 0, mapheight); j++) { // y
+        for (int i = std::clamp(center.x - offsetx, 0, dimensions.x); i < std::clamp(center.x + offsetx, 0, dimensions.x); i++) { // x
+            for (int j = std::clamp(center.y - offsety, 0, dimensions.y); j < std::clamp(center.y + offsety, 0, dimensions.y); j++) { // y
                 DrawTile(i, j, heightmap);
             }
         };

@@ -162,9 +162,14 @@ TileMap GenerateTileMap(int n)
 }
 
 
-TileMap LoadHeightmap()
+TileMap LoadHeightmap(Point* dim)
 {
-    Image heightmap = LoadImage("assets/Amman.png");
+    Image heightmap = LoadImage("assets/Jerash.png");
+    if (dim) {
+        dim->x = heightmap.width;
+        dim->y = heightmap.height;
+    }
+    
     TileMap output(heightmap.width, std::vector<TileMap::value_type::value_type>(heightmap.height, { 0 }));
 
     for (int j = 0; j < heightmap.height - 1; j++) {

@@ -16,4 +16,4 @@ std::vector<std::vector<int>>* GenerateHeightMap(int n);
 
 TileMap GenerateTileMap(int n);
 
-TileMap LoadHeightmap();
+TileMap LoadHeightmap(Point* dim = nullptr);

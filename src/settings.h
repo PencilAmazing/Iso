@@ -10,8 +10,8 @@ namespace {
     const int screenHeight = 900;
 
     // Terrain generation breaks on non power of 2
-    const int mapwidth = 128;
-    const int mapheight = 128;
+    int mapwidth = 300;
+    int mapheight = 300;
 
     const int tileWidth = 64;
     const int tileHeight = 32;
