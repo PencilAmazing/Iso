@@ -15,7 +15,7 @@ std::string BinaryToString(uint8_t binary)
     return out;
 }
 
-void WriteDebugToScreen(Vector2 mousePos, Point selected, const TileMap& heightmap)
+void WriteDebugToScreen(Vector2 mousePos, Point selected, const TileMap& heightmap, float cameraZoom)
 {
     std::string debug = std::string("Mouse pos at ");
     debug += std::to_string(mousePos.x);
@@ -29,7 +29,7 @@ void WriteDebugToScreen(Vector2 mousePos, Point selected, const TileMap& heightm
     debug += std::to_string(selected.y);
     DrawText(debug.c_str(), 10, 40, 12, BLACK);
 
-    if (selected.x >= 0 && selected.x < mapwidth && selected.y >= 0 && selected.y < mapheight) {
+    if (IsPointWithinMap(selected.x, selected.y, heightmap)) {
         debug = std::string("Map height ");
         debug += std::to_string(heightmap[selected.x][selected.y].height);
         DrawText(debug.c_str(), 10, 70, 12, BLACK);
@@ -47,4 +47,8 @@ void WriteDebugToScreen(Vector2 mousePos, Point selected, const TileMap& heightm
     debug = std::string("Press M to toggle Moutain Tool: ");
     debug += std::to_string(ControlSettings.MountainTool);
     DrawText(debug.c_str(), 10, 100, 12, BLACK);
+
+    debug = std::string("Zoom level: ");
+    debug += std::to_string(cameraZoom);
+    DrawText(debug.c_str(), 10, 140, 12, BLACK);
 };

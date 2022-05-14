@@ -223,9 +223,9 @@ namespace {
     TileTexture SaddleSlopeTile;
 };
 
-inline bool IsPointWithinMap(int i, int j)
+inline bool IsPointWithinMap(int i, int j, const TileMap& map)
 {
-    return i >= 0 && j >= 0 && i < mapwidth&& j < mapheight;
+    return i >= 0 && j >= 0 && i < map.size() && j < map[0].size();
 };
 
 Point IsoToCartesian(int i, int j);
@@ -239,4 +239,4 @@ TileDescription ReadTile(MapTile tile);
 // Takes in map coords
 void DrawTile(int i, int j, TileMap& heightmap);
 // Takes in map coords
-void DrawCursor(int i, int j);
+void DrawCursor(int i, int j, int height);

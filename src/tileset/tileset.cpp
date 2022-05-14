@@ -106,15 +106,15 @@ void DrawTile(int i, int j, TileMap& heightmap)
     DrawTextureRec(TerrainSpritesheet, texture.direction[(int)tile.direction], { (float)x, (float)y }, WHITE);
 }
 
-void DrawCursor(int i, int j)
+void DrawCursor(int i, int j, int height)
 {
     Point coords = IsoToCartesian(i, j);
     int x = coords.x;
     int y = coords.y;
     //Color cursorColor = (int)GetFrameTime() % 2 == 0 ? WHITE : RED;
 
-    DrawCircle(x + tileWidth, y + tileHeight / 2 + 8, 5, BLUE);
-    DrawCircle(x + tileWidth / 2, y + 8, 5, ORANGE);
-    DrawCircle(x, y + tileHeight / 2 + 8, 5, RED);
-    DrawCircle(x + tileWidth / 2, y + tileHeight + 8, 5, PURPLE);
+    DrawCircle(x + tileWidth, y + tileHeightHalf + 8, 5, BLUE);
+    DrawCircle(x + tileWidthHalf, y + 8, 5, ORANGE);
+    DrawCircle(x, y + tileHeightHalf + 8, 5, RED);
+    DrawCircle(x + tileWidthHalf, y + tileHeight + 8, 5, PURPLE);
 }

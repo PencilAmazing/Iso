@@ -11,7 +11,7 @@ void RaiseSelection(Point start, Point end, int heightLimit, SelectionStyle styl
 {
     for (int i = start.x; i <= end.x; i++) {
         for (int j = start.y; j <= end.y; j++) {
-            if (!IsPointWithinMap(i, j)) continue;
+            if (!IsPointWithinMap(i, j, heightmap)) continue;
             MapTile& tile = heightmap[i][j];
             if (tile.height > heightLimit) continue;
             tile.corners = tile_element_raise_styles[style][tile.corners];
@@ -62,20 +62,14 @@ This is why people use engines
 void RaiseTerrain(int x, int y, int size, TileMap& heightmap)
 {
     // Bounds check
-    if (x < 0 || x >=mapwidth || y < 0 || y >= mapheight) return;
+    if (x < 0 || x >= mapwidth || y < 0 || y >= mapheight) return;
     if (size <= 0) return;
-
-    // Clamp height (for now)
-    if (heightmap[x][y].height >= 4) {
-        heightmap[x][y].height = 4;
-        return;
-    }
 
     size -= 1;
     int max_height = heightmap[x][y].height;
     for (int i = x - size; i <= x + size; i++) {
         for (int j = y - size; j <= y + size; j++) {
-            if (IsPointWithinMap(i, j) && heightmap[i][j].height < max_height)
+            if (IsPointWithinMap(i, j, heightmap) && heightmap[i][j].height < max_height)
                 max_height = heightmap[i][j].height;
         }
     }

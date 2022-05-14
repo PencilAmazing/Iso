@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "raymath.h"
 
 #include "debug.h"
 #include "settings.h"
@@ -26,18 +27,19 @@ int main(void)
     camera.target = { 300,300 };
     camera.offset = { screenWidth / 2.0f, screenHeight / 2.0f };
     camera.rotation = 0.f;
-    camera.zoom = 0.5f;
+    camera.zoom = 0.9f;
 
     // typedef in tileset.h
     // https://mathworld.wolfram.com/GridGraph.html
-    //TileMap heightmap(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
 
     //mapheight = mapheight = std::pow(2,6);
     //TileMap heightmap = GenerateTileMap(6);
 
     //ControlSettings.mapheight = ControlSettings.mapheight = 1024;
-    Point dimensions = { 0,0 };
-    TileMap heightmap = LoadHeightmap(&dimensions);
+    Point dimensions = { 6,6 };
+    TileMap heightmap(dimensions.x, std::vector<TileMap::value_type::value_type>(dimensions.y, { 0 }));
+    //Point dimensions = { 0,0 };
+    //TileMap heightmap = LoadHeightmap(&dimensions);
 
     // Main game loop
     while (!WindowShouldClose()) {
@@ -55,12 +57,10 @@ int main(void)
         ClearBackground(RAYWHITE);
         BeginMode2D(camera);
 
-        Vector2 mousePos = GetMousePosition();
-        mousePos.x += camera.target.x - camera.offset.x;
-        mousePos.y += camera.target.y - camera.offset.y;
-        // TODO fixing the zoom needs some matrix math I think
-        //mousePos.x *= camera.zoom;
-        //mousePos.y *= camera.zoom;
+        Vector2 in = GetMousePosition();
+        Vector3 mousePos = { in.x, in.y, 0.f };
+        mousePos = Vector3Unproject(mousePos, GetCameraMatrix2D(camera), MatrixIdentity());
+
         Point selected = CartesianToIso(mousePos.x, mousePos.y);
 
         Point center = CartesianToIso(camera.target.x, camera.target.y);
@@ -72,8 +72,8 @@ int main(void)
                 DrawTile(i, j, heightmap);
             }
         };
-        if(ControlSettings.DrawCursor)
-            DrawCursor(selected.x, selected.y);
+        if (ControlSettings.DrawCursor && IsPointWithinMap(selected.x, selected.y, heightmap))
+            DrawCursor(selected.x, selected.y, heightmap[selected.x][selected.y].height);
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             int size = 1;
@@ -89,10 +89,13 @@ int main(void)
             ControlSettings.DrawCursor = !ControlSettings.DrawCursor;
         //DrawCircle(camera.target.x, camera.target.y, 12, RED);
 
+        camera.zoom += GetMouseWheelMove() * 0.1f;
+        camera.zoom = std::clamp(camera.zoom, 0.1f, 2.5f);
+
         DrawCircle(tileWidthHalf, tileHeightHalf, 5, BLUE);
         EndMode2D();
-
-        WriteDebugToScreen(mousePos, selected, heightmap);
+        
+        WriteDebugToScreen({ mousePos.x, mousePos.y }, selected, heightmap, camera.zoom);
 
         EndDrawing();
     }
