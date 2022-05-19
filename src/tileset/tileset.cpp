@@ -135,12 +135,13 @@ uint8_t GetNearestCorner(Vector2 mouse, Point tile, int height)
 
 void DrawCursor(Vector2 mouse, Point tile, int height)
 {
+    uint8_t select = GetNearestCorner(mouse, tile, height);
+
     Point coords = IsoToCartesian(tile.x, tile.y);
     int x = coords.x + tileWidthHalf;
     int y = coords.y + tileHeightHalf + 8;
     y -= (tileHeightHalf - 8) * height;
 
-    uint8_t select = GetNearestCorner(mouse, tile, height);
     if (select & NORTH_CORNER)
         DrawCircle(x, y - tileHeightHalf, 5, ORANGE);
     if (select & SOUTH_CORNER)
@@ -152,26 +153,4 @@ void DrawCursor(Vector2 mouse, Point tile, int height)
     if (select & ALL_CORNERS)
         DrawCircle(x, y, 5, PINK);
     return;
-
-    // In top third of tile (from center)
-    if (mouse.y <= y - tileHeightHalf / 6) {
-        DrawCircle(x, y - tileHeightHalf, 5, ORANGE);
-    } else if (mouse.y >= y + tileHeightHalf / 6) {
-        DrawCircle(x, y + tileHeightHalf, 5, PURPLE);
-    } else {
-        // Mouse in vertical center
-        // Draw left corner
-        if (mouse.x <= x - tileWidthHalf / 6) {
-            DrawCircle(x - tileWidthHalf, y, 5, RED);
-        } else if (mouse.x >= x + tileWidthHalf / 6) {
-            DrawCircle(x + tileWidthHalf, y, 5, BLUE);
-        } else {
-            // Draw full tile
-            DrawCircle(x, y, 5, PINK);
-            DrawCircle(x + tileWidthHalf, y, 5, BLUE);
-            DrawCircle(x - tileWidthHalf, y, 5, RED);
-            DrawCircle(x, y - tileHeightHalf, 5, ORANGE);
-            DrawCircle(x, y + tileHeightHalf, 5, PURPLE);
-        }
-    }
 }

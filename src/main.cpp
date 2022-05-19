@@ -3,8 +3,8 @@
 
 #include "debug.h"
 #include "settings.h"
-#include "control.h"
 #include "gen/generate.h"
+#include "control/control.h"
 
 /*
 * TODO:
@@ -64,8 +64,8 @@ int main(void)
         Point selected = CartesianToIso(mousePos.x, mousePos.y);
 
         Point center = CartesianToIso(camera.target.x, camera.target.y);
-        int offsetx = ((screenWidth) / tileWidthHalf) / camera.zoom;
-        int offsety = ((screenHeight) / tileHeightHalf) / camera.zoom;
+        int offsetx = (int)(((screenWidth) / tileWidthHalf) / camera.zoom);
+        int offsety = (int)(((screenHeight) / tileHeightHalf) / camera.zoom);
 
         for (int i = std::clamp(center.x - offsetx, 0, dimensions.x); i < std::clamp(center.x + offsetx, 0, dimensions.x); i++) { // x
             for (int j = std::clamp(center.y - offsety, 0, dimensions.y); j < std::clamp(center.y + offsety, 0, dimensions.y); j++) { // y
@@ -75,11 +75,11 @@ int main(void)
         if (ControlSettings.DrawCursor && IsPointWithinMap(selected.x, selected.y, heightmap))
             DrawCursor({ mousePos.x, mousePos.y }, selected, heightmap[selected.x][selected.y].height);
 
+        int size = 1;
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            int size = 1;
             RaiseTerrain({ mousePos.x, mousePos.y }, selected, size, heightmap);
         } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-            // LowerTerrain(heightmap, selected.x, selected.y);
+            LowerTerrain({ mousePos.x, mousePos.y }, selected, size, heightmap);
         };
 
         if (IsKeyPressed(KEY_M)) {
@@ -94,7 +94,7 @@ int main(void)
 
         DrawCircle(tileWidthHalf, tileHeightHalf, 5, BLUE);
         EndMode2D();
-        
+
         WriteDebugToScreen({ mousePos.x, mousePos.y }, selected, heightmap, camera.zoom);
 
         EndDrawing();

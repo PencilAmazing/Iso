@@ -54,9 +54,9 @@ enum TileCorner : uint8_t {
 
 enum SelectionStyle {
     NorthCorner,
-    WestCorner,
-    SouthCorner,
     EastCorner,
+    SouthCorner,
+    WestCorner,
     FullTile,
     SouthEastEdge,
     SouthWestEdge,
