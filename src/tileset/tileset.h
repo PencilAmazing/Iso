@@ -223,13 +223,15 @@ namespace {
     TileTexture SaddleSlopeTile;
 };
 
+Point IsoToCartesian(int i, int j);
+Point CartesianToIso(float x, float y);
+
 inline bool IsPointWithinMap(int i, int j, const TileMap& map)
 {
     return i >= 0 && j >= 0 && i < map.size() && j < map[0].size();
 };
 
-Point IsoToCartesian(int i, int j);
-Point CartesianToIso(float x, float y);
+inline uint8_t GetNearestCorner(Vector2 mouse, Point tile, int height);
 
 void LoadTerrainSpritesheet();
 void UnloadTerrainSpritesheet();
@@ -238,5 +240,4 @@ TileDescription ReadTile(MapTile tile);
 
 // Takes in map coords
 void DrawTile(int i, int j, TileMap& heightmap);
-// Takes in map coords
-void DrawCursor(int i, int j, int height);
+void DrawCursor(Vector2 mouse, Point tile, int height);

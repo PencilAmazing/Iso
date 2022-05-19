@@ -27,7 +27,7 @@ int main(void)
     camera.target = { 300,300 };
     camera.offset = { screenWidth / 2.0f, screenHeight / 2.0f };
     camera.rotation = 0.f;
-    camera.zoom = 0.9f;
+    camera.zoom = 1.4f;
 
     // typedef in tileset.h
     // https://mathworld.wolfram.com/GridGraph.html
@@ -36,7 +36,7 @@ int main(void)
     //TileMap heightmap = GenerateTileMap(6);
 
     //ControlSettings.mapheight = ControlSettings.mapheight = 1024;
-    Point dimensions = { 6,6 };
+    Point dimensions = { 16,16 };
     TileMap heightmap(dimensions.x, std::vector<TileMap::value_type::value_type>(dimensions.y, { 0 }));
     //Point dimensions = { 0,0 };
     //TileMap heightmap = LoadHeightmap(&dimensions);
@@ -73,11 +73,11 @@ int main(void)
             }
         };
         if (ControlSettings.DrawCursor && IsPointWithinMap(selected.x, selected.y, heightmap))
-            DrawCursor(selected.x, selected.y, heightmap[selected.x][selected.y].height);
+            DrawCursor({ mousePos.x, mousePos.y }, selected, heightmap[selected.x][selected.y].height);
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             int size = 1;
-            RaiseTerrain(selected.x, selected.y, size, heightmap);
+            RaiseTerrain({ mousePos.x, mousePos.y }, selected, size, heightmap);
         } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
             // LowerTerrain(heightmap, selected.x, selected.y);
         };

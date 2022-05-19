@@ -106,15 +106,72 @@ void DrawTile(int i, int j, TileMap& heightmap)
     DrawTextureRec(TerrainSpritesheet, texture.direction[(int)tile.direction], { (float)x, (float)y }, WHITE);
 }
 
-void DrawCursor(int i, int j, int height)
+uint8_t GetNearestCorner(Vector2 mouse, Point tile, int height)
 {
-    Point coords = IsoToCartesian(i, j);
-    int x = coords.x;
-    int y = coords.y;
-    //Color cursorColor = (int)GetFrameTime() % 2 == 0 ? WHITE : RED;
+    Point coords = IsoToCartesian(tile.x, tile.y);
+    int x = coords.x + tileWidthHalf;
+    int y = coords.y + tileHeightHalf + 8;
+    y -= (tileHeightHalf - 8) * height;
 
-    DrawCircle(x + tileWidth, y + tileHeightHalf + 8, 5, BLUE);
-    DrawCircle(x + tileWidthHalf, y + 8, 5, ORANGE);
-    DrawCircle(x, y + tileHeightHalf + 8, 5, RED);
-    DrawCircle(x + tileWidthHalf, y + tileHeight + 8, 5, PURPLE);
+    uint8_t select = 0;
+
+    // In top third of tile (from center)
+    if (mouse.y <= y - tileHeightHalf / 4) {
+        select |= NORTH_CORNER;
+    } else if (mouse.y >= y + tileHeightHalf / 4) {
+        select |= SOUTH_CORNER;
+    } else {
+        if (mouse.x <= x - tileWidthHalf / 6) {
+            select |= WEST_CORNER;
+        } else if (mouse.x >= x + tileWidthHalf / 6) {
+            select |= EAST_CORNER;
+        } else {
+            select |= ALL_CORNERS;
+        }
+    }
+
+    return select;
+}
+
+void DrawCursor(Vector2 mouse, Point tile, int height)
+{
+    Point coords = IsoToCartesian(tile.x, tile.y);
+    int x = coords.x + tileWidthHalf;
+    int y = coords.y + tileHeightHalf + 8;
+    y -= (tileHeightHalf - 8) * height;
+
+    uint8_t select = GetNearestCorner(mouse, tile, height);
+    if (select & NORTH_CORNER)
+        DrawCircle(x, y - tileHeightHalf, 5, ORANGE);
+    if (select & SOUTH_CORNER)
+        DrawCircle(x, y + tileHeightHalf, 5, PURPLE);
+    if (select & WEST_CORNER)
+        DrawCircle(x - tileWidthHalf, y, 5, RED);
+    if (select & EAST_CORNER)
+        DrawCircle(x + tileWidthHalf, y, 5, BLUE);
+    if (select & ALL_CORNERS)
+        DrawCircle(x, y, 5, PINK);
+    return;
+
+    // In top third of tile (from center)
+    if (mouse.y <= y - tileHeightHalf / 6) {
+        DrawCircle(x, y - tileHeightHalf, 5, ORANGE);
+    } else if (mouse.y >= y + tileHeightHalf / 6) {
+        DrawCircle(x, y + tileHeightHalf, 5, PURPLE);
+    } else {
+        // Mouse in vertical center
+        // Draw left corner
+        if (mouse.x <= x - tileWidthHalf / 6) {
+            DrawCircle(x - tileWidthHalf, y, 5, RED);
+        } else if (mouse.x >= x + tileWidthHalf / 6) {
+            DrawCircle(x + tileWidthHalf, y, 5, BLUE);
+        } else {
+            // Draw full tile
+            DrawCircle(x, y, 5, PINK);
+            DrawCircle(x + tileWidthHalf, y, 5, BLUE);
+            DrawCircle(x - tileWidthHalf, y, 5, RED);
+            DrawCircle(x, y - tileHeightHalf, 5, ORANGE);
+            DrawCircle(x, y + tileHeightHalf, 5, PURPLE);
+        }
+    }
 }

@@ -59,8 +59,11 @@ This is why people use engines
 
 // Given a rectangular selection, raises terrain
 // size of 0 means single tile
-void RaiseTerrain(int x, int y, int size, TileMap& heightmap)
+void RaiseTerrain(Vector2 mouse, Point selected, int size, TileMap& heightmap)
 {
+    int x = selected.x;
+    int y = selected.y;
+
     // Bounds check
     if (x < 0 || x >= mapwidth || y < 0 || y >= mapheight) return;
     if (size <= 0) return;
