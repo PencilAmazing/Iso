@@ -18,14 +18,16 @@ Point CartesianToIso(float x, float y)
     };
 }
 
-Point CartesianToIso(float x, float y, TileMap& map)
+Point CartesianToIso(float x, float y, TileMap* map)
 {
-    float column = x / tileWidth;
+    // Get non-corrected tile height
+    Point mousePoint = CartesianToIso(x, y);
+    int elevation = map->GetTileHeight(mousePoint.x, mousePoint.y);
+    // Adjust mouse position and return corrected tile height
+    // I think i fixed it? No idea where the 4 came from but I'm not complaining at all
+    Point correctedMousePoint = CartesianToIso(x, y + (tileHeight * (elevation / 4.0)));
 
-    return {
-        (int)(y / (float)tileHeight + x / (float)tileWidth),
-        (int)(y / (float)tileHeight - x / (float)tileWidth)
-    };
+    return correctedMousePoint;
 }
 
 void UnloadTerrainSpritesheet()

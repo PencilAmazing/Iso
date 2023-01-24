@@ -63,7 +63,8 @@ int main(void)
         Vector3 mousePos = { in.x, in.y, 0.f };
         mousePos = Vector3Unproject(mousePos, GetCameraMatrix2D(camera), MatrixIdentity());
 
-        Point selected = CartesianToIso(mousePos.x, mousePos.y);
+        //Point selected = CartesianToIso(mousePos.x, mousePos.y);
+        Point selected = CartesianToIso(mousePos.x, mousePos.y, &heightmap);
 
         Point center = CartesianToIso(camera.target.x, camera.target.y);
         int offsetx = (int)(((screenWidth) / tileWidthHalf) / camera.zoom);

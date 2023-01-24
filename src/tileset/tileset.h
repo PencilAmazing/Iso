@@ -5,6 +5,7 @@
 #include "../settings.h"
 #include <vector>
 
+class TileMap;
 
 // Following openttd's convention
 // https://wiki.openttd.org/en/Development/Directions
@@ -223,6 +224,7 @@ namespace {
 
 Point IsoToCartesian(int i, int j);
 Point CartesianToIso(float x, float y);
+Point CartesianToIso(float x, float y, TileMap* map);
 
 void LoadTerrainSpritesheet();
 void UnloadTerrainSpritesheet();
