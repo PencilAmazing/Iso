@@ -1,5 +1,6 @@
 #include "tileset.h"
 #include <assert.h>
+#include "tilemap.h"
 
 Point IsoToCartesian(int i, int j)
 {
@@ -11,6 +12,16 @@ Point IsoToCartesian(int i, int j)
 
 Point CartesianToIso(float x, float y)
 {
+    return {
+        (int)(y / (float)tileHeight + x / (float)tileWidth),
+        (int)(y / (float)tileHeight - x / (float)tileWidth)
+    };
+}
+
+Point CartesianToIso(float x, float y, TileMap& map)
+{
+    float column = x / tileWidth;
+
     return {
         (int)(y / (float)tileHeight + x / (float)tileWidth),
         (int)(y / (float)tileHeight - x / (float)tileWidth)
@@ -62,17 +73,15 @@ TileDescription ReadTile(MapTile tile)
 };
 
 // Takes in map coords
-void DrawTile(int i, int j, TileMap& heightmap)
+void DrawTile(int i, int j, int height, TileDescription desc)
 {
     Point coords = IsoToCartesian(i, j);
     int x = coords.x;
     int y = coords.y;
     //assert(x >= 0 && y >= 0);
 
-    TileDescription tile = ReadTile(heightmap[i][j]);
-    TileTexture texture;
-
-    switch (tile.elevation) {
+    TileTexture texture = FloorTile;
+    switch (desc.elevation) {
     case Tile_Flat:
         texture = FloorTile;
         break;
@@ -100,10 +109,9 @@ void DrawTile(int i, int j, TileMap& heightmap)
     };
 
     // Tile set i'm using has really weird margins.
-    int height = (int)(heightmap[i][j].height);
     y -= (tileHeight / 4) * height;
     //DrawTexture(texture.direction[(int)tile.direction], x, y, WHITE);
-    DrawTextureRec(TerrainSpritesheet, texture.direction[(int)tile.direction], { (float)x, (float)y }, WHITE);
+    DrawTextureRec(TerrainSpritesheet, texture.direction[(int)desc.direction], { (float)x, (float)y }, WHITE);
 }
 
 uint8_t GetNearestCorner(Vector2 mouse, Point tile, int height)

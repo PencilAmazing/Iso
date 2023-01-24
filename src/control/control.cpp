@@ -4,7 +4,7 @@ void RaiseSelection(Point start, Point end, int heightLimit, SelectionStyle styl
 {
     for (int i = start.x; i <= end.x; i++) {
         for (int j = start.y; j <= end.y; j++) {
-            if (!IsPointWithinMap(i, j, heightmap)) continue;
+            if (!heightmap.IsPointWithinMap(i, j)) continue;
             MapTile& tile = heightmap[i][j];
             if (tile.height > heightLimit) continue;
             tile.corners = tile_element_raise_styles[style][tile.corners];
@@ -17,7 +17,7 @@ void LowerSelection(Point start, Point end, int heightLimit, SelectionStyle styl
 {
     for (int i = start.x; i <= end.x; i++) {
         for (int j = start.y; j <= end.y; j++) {
-            if (!IsPointWithinMap(i, j, heightmap)) continue;
+            if (!heightmap.IsPointWithinMap(i, j)) continue;
             MapTile& tile = heightmap[i][j];
             if (tile.height > heightLimit) continue;
             tile.corners = tile_element_lower_styles[style][tile.corners];
@@ -59,16 +59,16 @@ void RaiseTerrain(Vector2 mouse, Point selected, int size, TileMap& heightmap)
     int y = selected.y;
 
     // Bounds check
-    if (x < 0 || x >= mapwidth || y < 0 || y >= mapheight) return;
+    if (!heightmap.IsPointWithinMap(selected)) return;
     if (size <= 0) return;
 
-    uint8_t select = GetNearestCorner(mouse, selected, heightmap[x][y].height);
+    uint8_t select = heightmap.GetNearestCorner(mouse, selected);
 
     size -= 1;
     int max_height = heightmap[x][y].height;
     for (int i = x - size; i <= x + size; i++) {
         for (int j = y - size; j <= y + size; j++) {
-            if (IsPointWithinMap(i, j, heightmap) && heightmap[i][j].height < max_height)
+            if (heightmap.IsPointWithinMap(i, j) && heightmap[i][j].height < max_height)
                 max_height = heightmap[i][j].height;
         }
     }
@@ -112,16 +112,16 @@ void LowerTerrain(Vector2 mouse, Point selected, int size, TileMap& heightmap)
     int y = selected.y;
 
     // Bounds check
-    if (x < 0 || x >= mapwidth || y < 0 || y >= mapheight) return;
+    if (!heightmap.IsPointWithinMap(selected)) return;
     if (size <= 0) return;
 
-    uint8_t select = GetNearestCorner(mouse, selected, heightmap[x][y].height);
+    uint8_t select = heightmap.GetNearestCorner(mouse, selected);
 
     size -= 1;
     int max_height = heightmap[x][y].height;
     for (int i = x - size; i <= x + size; i++) {
         for (int j = y - size; j <= y + size; j++) {
-            if (IsPointWithinMap(i, j, heightmap) && heightmap[i][j].height < max_height)
+            if (heightmap.IsPointWithinMap(i, j) && heightmap[i][j].height < max_height)
                 max_height = heightmap[i][j].height;
         }
     }

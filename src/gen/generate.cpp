@@ -129,7 +129,7 @@ TileMap GenerateTileMap(int n)
         line.clear();
     }
 
-    TileMap output(mapwidth, std::vector<TileMap::value_type::value_type>(mapheight, { 0 }));
+    TileMap output(mapwidth, mapheight);
 
     for (int y = 0; y < mapheight - 1; y++) {
         for (int x = 0; x < mapwidth - 1; x++) {
@@ -170,7 +170,7 @@ TileMap LoadHeightmap(Point* dim)
         dim->y = heightmap.height;
     }
     
-    TileMap output(heightmap.width, std::vector<TileMap::value_type::value_type>(heightmap.height, { 0 }));
+    TileMap output(heightmap.width, heightmap.height);
 
     for (int j = 0; j < heightmap.height - 1; j++) {
         for (int i = 0; i < heightmap.width - 1; i++) {

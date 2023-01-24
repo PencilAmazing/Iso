@@ -17,10 +17,9 @@
 
 int main(void)
 {
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - input mouse wheel");
+    InitWindow(screenWidth, screenHeight, "Isometric gaem I swear");
 
     LoadTerrainSpritesheet();
-
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
     Camera2D camera = { 0 };
@@ -29,17 +28,20 @@ int main(void)
     camera.rotation = 0.f;
     camera.zoom = 1.4f;
 
-    // typedef in tileset.h
+    TraceLog(LOG_INFO, "Current working directory: ");
+    TraceLog(LOG_INFO, GetWorkingDirectory());
+
     // https://mathworld.wolfram.com/GridGraph.html
 
     //mapheight = mapheight = std::pow(2,6);
     //TileMap heightmap = GenerateTileMap(6);
 
     //ControlSettings.mapheight = ControlSettings.mapheight = 1024;
-    Point dimensions = { 16,16 };
-    TileMap heightmap(dimensions.x, std::vector<TileMap::value_type::value_type>(dimensions.y, { 0 }));
-    //Point dimensions = { 0,0 };
-    //TileMap heightmap = LoadHeightmap(&dimensions);
+    //Point dimensions = { 32,32 };
+    //TileMap heightmap(dimensions.x, std::vector<TileMap::value_type::value_type>(dimensions.y, { 0 }));
+    Point dimensions = { 0,0 };
+    TileMap heightmap = LoadHeightmap(&dimensions);
+    //TileMap heightmap(32, 32);
 
     // Main game loop
     while (!WindowShouldClose()) {
@@ -54,7 +56,7 @@ int main(void)
             camera.target.x -= cameraSpeed;
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(BROWN);
         BeginMode2D(camera);
 
         Vector2 in = GetMousePosition();
@@ -67,12 +69,13 @@ int main(void)
         int offsetx = (int)(((screenWidth) / tileWidthHalf) / camera.zoom);
         int offsety = (int)(((screenHeight) / tileHeightHalf) / camera.zoom);
 
-        for (int i = std::clamp(center.x - offsetx, 0, dimensions.x); i < std::clamp(center.x + offsetx, 0, dimensions.x); i++) { // x
-            for (int j = std::clamp(center.y - offsety, 0, dimensions.y); j < std::clamp(center.y + offsety, 0, dimensions.y); j++) { // y
-                DrawTile(i, j, heightmap);
+        for (int i = std::clamp(center.x - offsetx, 0, heightmap.Width()); i < std::clamp(center.x + offsetx, 0, heightmap.Width()); i++) { // x
+            for (int j = std::clamp(center.y - offsety, 0, heightmap.Length()); j < std::clamp(center.y + offsety, 0, heightmap.Length()); j++) { // y
+                const MapTile* tile = heightmap.GetTile(i, j);
+                DrawTile(i, j, tile->height, heightmap.GetTileDescription(tile));
             }
         };
-        if (ControlSettings.DrawCursor && IsPointWithinMap(selected.x, selected.y, heightmap))
+        if (ControlSettings.DrawCursor && heightmap.IsPointWithinMap(selected))
             DrawCursor({ mousePos.x, mousePos.y }, selected, heightmap[selected.x][selected.y].height);
 
         int size = 1;

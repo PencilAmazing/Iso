@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../tileset/tileset.h"
+#include "../tileset/tilemap.h"
 
 void RaiseSelection(Point start, Point end, int heightLimit, SelectionStyle style, TileMap& heightmap);
 void LowerSelection(Point start, Point end, int heightLimit, SelectionStyle style, TileMap& heightmap);

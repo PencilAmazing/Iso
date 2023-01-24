@@ -2,7 +2,7 @@
 
 #include "raylib.h"
 
-#include "tileset/tileset.h"
+#include "tileset/tilemap.h"
 #include <string>
 
 std::string BinaryToString(uint8_t binary)
@@ -15,7 +15,7 @@ std::string BinaryToString(uint8_t binary)
     return out;
 }
 
-void WriteDebugToScreen(Vector2 mousePos, Point selected, const TileMap& heightmap, float cameraZoom)
+void WriteDebugToScreen(Vector2 mousePos, Point selected, TileMap& heightmap, float cameraZoom)
 {
     std::string debug = std::string("Mouse pos at ");
     debug += std::to_string(mousePos.x);
@@ -29,12 +29,12 @@ void WriteDebugToScreen(Vector2 mousePos, Point selected, const TileMap& heightm
     debug += std::to_string(selected.y);
     DrawText(debug.c_str(), 10, 40, 12, BLACK);
 
-    if (IsPointWithinMap(selected.x, selected.y, heightmap)) {
+    if (heightmap.IsPointWithinMap(selected)) {
         debug = std::string("Map height ");
-        debug += std::to_string(heightmap[selected.x][selected.y].height);
+        debug += std::to_string(heightmap.GetTile(selected)->height);
         DrawText(debug.c_str(), 10, 70, 12, BLACK);
 
-        debug = BinaryToString(heightmap[selected.x][selected.y].corners);
+        debug = BinaryToString(heightmap.GetTile(selected)->corners);
         DrawText(debug.c_str(), screenWidth - 100, 30, 16, BLACK);
         TileDescription desc = ReadTile(heightmap[selected.x][selected.y]);
         debug = std::string("Tile description ");

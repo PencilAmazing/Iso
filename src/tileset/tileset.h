@@ -196,8 +196,6 @@ const uint8_t tile_element_lower_styles[9][32] = {
     }, // MAP_SELECT_TYPE_EDGE_3
 };
 
-typedef std::vector<std::vector<MapTile>> TileMap;
-
 struct Point {
     int x;
     int y;
@@ -226,18 +224,11 @@ namespace {
 Point IsoToCartesian(int i, int j);
 Point CartesianToIso(float x, float y);
 
-inline bool IsPointWithinMap(int i, int j, const TileMap& map)
-{
-    return i >= 0 && j >= 0 && i < map.size() && j < map[0].size();
-};
-
-inline uint8_t GetNearestCorner(Vector2 mouse, Point tile, int height);
-
 void LoadTerrainSpritesheet();
 void UnloadTerrainSpritesheet();
 
 TileDescription ReadTile(MapTile tile);
 
 // Takes in map coords
-void DrawTile(int i, int j, TileMap& heightmap);
+void DrawTile(int i, int j, int height, TileDescription desc);
 void DrawCursor(Vector2 mouse, Point tile, int height);
