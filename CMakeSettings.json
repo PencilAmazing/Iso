@@ -10,6 +10,25 @@
 	  "cmakeCommandArgs": "",
 	  "buildCommandArgs": "",
 	  "ctestCommandArgs": ""
+	},
+	{
+	  "name": "Web",
+	  "generator": "Ninja",
+	  "configurationType": "Release",
+	  "buildRoot": "${projectDir}\\bin",
+	  "installRoot": "${projectDir}\\out\\install\\${name}",
+	  "cmakeCommandArgs": "",
+	  "buildCommandArgs": "",
+	  "ctestCommandArgs": "",
+	  "cmakeToolchain": "D:/dev/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+	  "inheritEnvironments": [ "gcc-arm" ],
+	  "variables": [
+		{
+		  "name": "PLATFORM",
+		  "value": "Web",
+		  "type": "STRING"
+		}
+	  ]
 	}
   ]
 }

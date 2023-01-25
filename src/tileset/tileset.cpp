@@ -46,7 +46,7 @@ void LoadTerrainSpritesheet()
     for (int j = 0; j < 5; j++) {
         int xOffset = 0;
         for (int i : {TileDirection::Tile_West, TileDirection::Tile_South, TileDirection::Tile_East, TileDirection::Tile_North}) {
-            Rectangle crop = { tileWidth * xOffset, yOffset, tileWidth, tileHeight + 16 };
+            Rectangle crop = { (float)tileWidth * (float)xOffset, yOffset, (float)tileWidth, (float)tileHeight + 16.0 };
             //textureList[j]->direction[i] = LoadTextureFromImage(copy);
             textureList[j]->direction[i] = crop;
             xOffset += 1;

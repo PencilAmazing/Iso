@@ -14,6 +14,7 @@ private:
     int length;
 
 public:
+    TileMap() = default;
     TileMap(int x, int y);
 
     std::vector<MapTile>& operator[](int i)
