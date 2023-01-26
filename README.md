@@ -1,5 +1,7 @@
 
 # ISO - Isometric heightmap renderer
+[Check out emscripten demo here!](https://pencilamazing.github.io/Iso)
+
 2D isometric heightmap renderer using terrain tiles, similar to OpenTTD/OpenRCT. Can read OpenTTD heightmaps.
 
 ![Demo of grass tiles](demo/demo-grass.png)
